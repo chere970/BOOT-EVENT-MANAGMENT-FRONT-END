@@ -27,7 +27,7 @@ const EventDetailContent = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [isRegistered, setIsRegistered] = useState(false);
-  const [ticketNumber, setTicketNumber] = useState<string | null>(null);
+  // const [ticketNumber, setTicketNumber] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>("");
   const [currentEmail, setCurrentEmail] = useState<string>("");
@@ -61,7 +61,7 @@ const EventDetailContent = () => {
             const myRegistration = registrations.find((r: any) => r.userId === storedUserId);
             if (myRegistration) {
               setIsRegistered(true);
-              setTicketNumber(myRegistration.ticketNumber || null);
+              // setTicketNumber(myRegistration.ticketNumber || null);
             }
           }
         }
@@ -101,7 +101,7 @@ const EventDetailContent = () => {
         }
         
         setIsRegistered(false);
-        setTicketNumber(null);
+        // setTicketNumber(null);
         alert("Registration cancelled successfully.");
       } else {
         // Register for event
@@ -128,7 +128,7 @@ const EventDetailContent = () => {
         const newReg = newRegWrapper.data || newRegWrapper; // Support wrapper or direct
         
         setIsRegistered(true);
-        setTicketNumber(newReg.ticketNumber || "Ticket Confirmation Sent");
+        // setTicketNumber(newReg.ticketNumber || "Ticket Confirmation Sent");
         alert("Successfully registered!");
       }
     } catch (err: any) {
@@ -305,7 +305,7 @@ const EventDetailContent = () => {
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <div style={{ padding: "16px", backgroundColor: "#ecfdf5", border: "1px solid #10b981", borderRadius: "8px", color: "#065f46" }}>
                   <p style={{ margin: "0 0 4px 0", fontWeight: "600" }}>✓ You are registered</p>
-                  {ticketNumber && <p style={{ margin: 0, fontSize: "0.9rem" }}>Ticket #: <strong style={{ fontFamily: "monospace", fontSize: "1rem" }}>{ticketNumber}</strong></p>}
+                  <p style={{ margin: 0, fontSize: "0.9rem" }}>You are registered for this event.We will send you an email with the ticket details. <strong style={{ fontFamily: "monospace", fontSize: "1rem" }}></strong></p>
                 </div>
                 <button 
                   className={styles.registerButton} 
