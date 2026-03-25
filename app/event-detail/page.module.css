@@ -1,24 +1,51 @@
 .pageContainer {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 40px 20px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #333;
+  background-color: #f7f9fc;
+  min-height: 100vh;
 }
 
+/* Back button */
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 24px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.backButton:hover {
+  color: #1f2937;
+  transform: translateX(-4px);
+}
+.backButton svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Hero Section */
 .heroSection {
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin-bottom: 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 48px;
   position: relative;
+  background-color: #ffffff;
 }
 
 .coverImage {
   width: 100%;
-  height: 400px;
+  height: 480px;
   object-fit: cover;
   display: block;
+  opacity: 1;
+  transition: opacity 0.3s ease;
 }
 
 .heroOverlay {
@@ -27,40 +54,46 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0) 100%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 40px;
-  color: white;
+  padding: 48px;
 }
 
 .eventTitle {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 800;
-  margin: 0 0 10px 0;
-  line-height: 1.2;
+  margin: 0 0 12px 0;
+  line-height: 1.1;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  letter-spacing: -0.02em;
 }
 
 .badge {
   background-color: #fdd835;
   color: #000;
   font-size: 0.85rem;
-  font-weight: 600;
-  padding: 6px 12px;
+  font-weight: 700;
+  padding: 6px 14px;
   border-radius: 4px;
   display: inline-block;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   align-self: flex-start;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+/* Layout Details */
 .contentRow {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 40px;
+  grid-template-columns: 1fr 380px;
+  gap: 48px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .contentRow {
     grid-template-columns: 1fr;
   }
@@ -69,7 +102,7 @@
 .mainColumn {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 32px;
 }
 
 .sideColumn {
@@ -79,42 +112,55 @@
 }
 
 .sectionTitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 0 16px 0;
-  color: #111827;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  color: #1f2937;
+  letter-spacing: -0.01em;
 }
 
 .descriptionBox {
-  font-size: 1.05rem;
-  line-height: 1.6;
+  font-size: 1.1rem;
+  line-height: 1.8;
   color: #4b5563;
 }
 
+.descriptionBox p {
+  margin-bottom: 20px;
+}
+
+/* White Info Card */
 .infoCard {
-  background-color: #f9fafb;
+  background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 40px;
 }
 
 .infoItem {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.infoItem:last-child {
-  margin-bottom: 0;
+.infoItem:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 30px;
 }
 
 .iconWrapper {
-  background-color: #e0e7ff;
-  color: #4f46e5;
+  background: #f3f4f6;
+  color: #3b82f6;
   width: 48px;
   height: 48px;
-  border-radius: 50%;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,70 +179,144 @@
 }
 
 .infoLabel {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #6b7280;
   text-transform: uppercase;
-  font-weight: 600;
-  margin-bottom: 4px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
 }
 
 .infoValue {
   font-size: 1.1rem;
-  color: #111827;
-  font-weight: 500;
+  color: #1f2937;
+  font-weight: 600;
 }
 
+/* Form elements within Info Card */
+.inputGroup {
+  margin-bottom: 24px;
+}
+
+.label {
+  display: block;
+  font-size: 0.8rem;
+  color: #4b5563;
+  margin-bottom: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+  font-size: 1rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.input:focus {
+  border-color: #3b82f6;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.input::placeholder {
+  color: #9ca3af;
+}
+
+.helperText {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 8px;
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+.successBox {
+  padding: 16px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  color: #065f46;
+  margin-bottom: 16px;
+}
+
+.successTitle {
+  margin: 0 0 6px 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.successMessage {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #047857;
+}
+
+/* Action Buttons */
 .registerButton {
-  background-color: #4f46e5;
+  background: #3b82f6;
   color: white;
   border: none;
   border-radius: 8px;
   padding: 16px;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 700;
   width: 100%;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+  letter-spacing: 0.02em;
 }
 
-.registerButton:hover {
-  background-color: #4338ca;
+.registerButton:hover:not(:disabled) {
+  background: #2563eb;
   transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
 }
 
-.registerButton:active {
-  transform: translateY(0);
+.registerButton:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
-.backButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #6b7280;
-  text-decoration: none;
-  font-weight: 500;
-  margin-bottom: 24px;
-  transition: color 0.2s;
+.registerButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.backButton:hover {
-  color: #4f46e5;
+.cancelButton {
+  background: #ef4444;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
 }
 
-.backButton svg {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
+.cancelButton:hover:not(:disabled) {
+  background: #dc2626;
+  box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
 }
 
 .loadingText, .errorText {
   text-align: center;
   font-size: 1.2rem;
   color: #6b7280;
-  margin-top: 60px;
+  margin-top: 80px;
 }
 
 .errorText {
   color: #ef4444;
+  background: #fef2f2;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
 }

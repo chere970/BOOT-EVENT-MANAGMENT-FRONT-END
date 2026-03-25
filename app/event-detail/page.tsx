@@ -231,7 +231,7 @@ const EventDetailContent = () => {
             <div className={styles.descriptionBox}>
               {event.description ? (
                 event.description.split('\n').map((paragraph, index) => (
-                  <p key={index} style={{ marginBottom: "16px" }}>
+                  <p key={index}>
                     {paragraph}
                   </p>
                 ))
@@ -254,7 +254,7 @@ const EventDetailContent = () => {
               <div className={styles.infoText}>
                 <span className={styles.infoLabel}>Date & Time</span>
                 <span className={styles.infoValue}>{formatFullDate(event.startDate, event.endDate)}</span>
-                <span className={styles.infoValue} style={{ color: "#6b7280", fontSize: "0.95rem" }}>
+                <span className={styles.infoValue} style={{ color: "#9ca3af", fontSize: "0.95rem", marginTop: "4px" }}>
                   {formatTime(event.startDate, event.endDate)}
                 </span>
               </div>
@@ -272,44 +272,50 @@ const EventDetailContent = () => {
               </div>
             </div>
 
-            <div style={{ marginBottom: "20px" }}>
-              <label style={{ display: "block", fontSize: "0.85rem", color: "#6b7280", marginBottom: "8px", fontWeight: "600", textTransform: "uppercase" }}>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>
                 Simulation User ID
               </label>
               <input 
                 type="text" 
+                className={styles.input}
                 value={currentUserId}
                 onChange={(e) => setCurrentUserId(e.target.value)}
                 placeholder="Enter valid User ID here (e.g. 2)..."
-                style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "0.95rem", boxSizing: "border-box" }}
               />
-              <p style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: "4px", marginBottom: "0" }}>
+              <p className={styles.helperText}>
                 You must input an existing User ID from your backend database to successfully register.
               </p>
             </div>
 
-            <div style={{ marginBottom: "20px" }}>
-              <label style={{ display: "block", fontSize: "0.85rem", color: "#6b7280", marginBottom: "8px", fontWeight: "600", textTransform: "uppercase" }}>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>
                 Simulation Email
               </label>
               <input 
                 type="email" 
+                className={styles.input}
                 value={currentEmail}
                 onChange={(e) => setCurrentEmail(e.target.value)}
                 placeholder="Enter an email to receive your ticket..."
-                style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "0.95rem", boxSizing: "border-box" }}
               />
             </div>
 
             {isRegistered ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                <div style={{ padding: "16px", backgroundColor: "#ecfdf5", border: "1px solid #10b981", borderRadius: "8px", color: "#065f46" }}>
-                  <p style={{ margin: "0 0 4px 0", fontWeight: "600" }}>✓ You are registered</p>
-                  <p style={{ margin: 0, fontSize: "0.9rem" }}>You are registered for this event.We will send you an email with the ticket details. <strong style={{ fontFamily: "monospace", fontSize: "1rem" }}></strong></p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div className={styles.successBox}>
+                  <p className={styles.successTitle}>
+                    <svg style={{ width: 18, height: 18 }} viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.8 14.8L6 12.6l1.4-1.4 2.8 2.8 6.4-7.8 1.4 1.2-7.8 9.4z"/>
+                    </svg>
+                    You are registered
+                  </p>
+                  <p className={styles.successMessage}>
+                    You are registered for this event. We will send you an email with the ticket details.
+                  </p>
                 </div>
                 <button 
-                  className={styles.registerButton} 
-                  style={{ backgroundColor: "#ef4444", boxShadow: "0 4px 6px rgba(239, 68, 68, 0.2)" }}
+                  className={`${styles.registerButton} ${styles.cancelButton}`} 
                   onClick={handleRegisterToggle}
                   disabled={isSubmitting}
                 >
