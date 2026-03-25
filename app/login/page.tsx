@@ -7,9 +7,9 @@ import Link from "next/link";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 
-export default function login() {
+export default function Login() {
   const router = useRouter();
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
@@ -20,10 +20,10 @@ export default function login() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch("http://localhost:8000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber, password }),
+        body: JSON.stringify({ phone, password }),
       });
 
       const data = await res.json();
@@ -47,7 +47,9 @@ export default function login() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-600 mt-2">Sign in to your account</p>
+          <p className="text-gray-600 mt-2 text-base">
+            Sign in to your account
+          </p>
         </div>
 
         {error && (
@@ -61,8 +63,8 @@ export default function login() {
             label="Phone number"
             type="string"
             name="phoneNumber"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             required
             autoComplete="tel"
           />
@@ -90,19 +92,19 @@ export default function login() {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               required
             >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="organizer">Organizer</option>
+              <option value="user">MEMBER</option>//
+              <option value="admin">ADMIN</option>
+              <option value="organizer">VOLUNTEER</option>
             </select>
           </div>
           <Button type="submit" isLoading={loading}>
-            Sign in
+            Login
           </Button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-600">
           Don't have an account?{" "}
           <Link
-            href="/register"
+            href="/registration"
             className="font-medium text-blue-600 hover:text-blue-500"
           >
             Sign up
