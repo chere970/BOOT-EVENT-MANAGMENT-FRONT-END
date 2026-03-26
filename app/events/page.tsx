@@ -96,7 +96,22 @@ const EventsPage = () => {
 
   return (
     <div className={styles.pageContainer}>
-      <h1 className={styles.pageTitle}>Upcoming Events</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', maxWidth: '1200px', margin: '0 auto 30px auto' }}>
+        <h1 className={styles.pageTitle} style={{ marginBottom: 0 }}>Upcoming Events</h1>
+        <Link 
+          href="/create-event" 
+          style={{ 
+            background: '#3b82f6', 
+            color: 'white', 
+            padding: '10px 20px', 
+            borderRadius: '8px', 
+            textDecoration: 'none', 
+            fontWeight: '600' 
+          }}
+        >
+          Create Event
+        </Link>
+      </div>
       <div className={styles.eventsGrid}>
         {events.map((event, index) => {
           const { month, day, time } = formatDateLabel(event.startDate, event.endDate);
