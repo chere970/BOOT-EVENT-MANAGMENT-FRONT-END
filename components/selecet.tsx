@@ -1,7 +1,7 @@
 import React from "react";
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label: string;
+  label?: string;
   options: { value: string; label: string }[]; // Custom prop
   error?: string;
 }

@@ -113,25 +113,22 @@ export default function Register() {
               required
             />
 
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Role
-              </label>
-              <Select
-                id="role"
-                label="Role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                options={[
-                  { value: "MEMBER", label: "Member" },
-                  { value: "ADMIN", label: "Admin" },
-                  { value: "VOLUNTEER", label: "Volunteer" },
-                ]}
-              />
-            </div>
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Role
+            </label>
+            <Select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              options={[
+                { value: "MEMBER", label: "Member" },
+                { value: "ADMIN", label: "Admin" },
+                { value: "VOLUNTEER", label: "Volunteer" },
+              ]}
+            />
           </div>
 
           <Button
