@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   RiDashboardLine,
   RiCalendarEventLine,
+  RiAddCircleLine,
   RiFileList3Line,
   RiGroupLine,
   RiMessage3Line,
@@ -96,6 +97,14 @@ const Sidebar = () => {
                 4
               </span>
             )}
+          </Link>
+
+          <Link
+            href="/create-event"
+            className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname === "/create-event" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
+          >
+            <RiAddCircleLine size={20} />
+            <span className="text-sm">Create Event</span>
           </Link>
 
           <Link

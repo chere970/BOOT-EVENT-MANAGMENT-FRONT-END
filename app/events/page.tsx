@@ -141,6 +141,21 @@ const EventsPage = () => {
 
   return (
     <div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        {/* <div>
+          <h2 className="text-2xl font-bold text-gray-900">Events</h2>
+          <p className="text-sm text-gray-500">
+            Manage and create upcoming events.
+          </p>
+        </div> */}
+        {/* <Link
+          href="/create-event"
+          className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          Create Event
+        </Link> */}
+      </div>
+
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-8">
         {filters.map((f) => (
