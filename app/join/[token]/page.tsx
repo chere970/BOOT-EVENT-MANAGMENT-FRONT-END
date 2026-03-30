@@ -15,6 +15,11 @@ interface EventDetail {
   imageUrl?: string;
 }
 
+interface CurrentUser {
+  id?: string;
+  email?: string;
+}
+
 export default function JoinEventPage() {
   const params = useParams();
   const router = useRouter();
@@ -28,8 +33,8 @@ export default function JoinEventPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [currentUserId, setCurrentUserId] = useState<string>("");
-  const [currentEmail, setCurrentEmail] = useState<string>("");
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [authToken, setAuthToken] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registered, setRegistered] = useState(false);
 
@@ -52,11 +57,23 @@ export default function JoinEventPage() {
         // The backend returns { event: ..., inviteId: ..., token: ... }
         setEventData(data.event);
 
-        // check local storage to autofill
-        const storedUserId = localStorage.getItem("test_user_id") || "";
-        const storedEmail = localStorage.getItem("test_user_email") || "";
-        setCurrentUserId(storedUserId);
-        setCurrentEmail(storedEmail);
+        const storedToken =
+          localStorage.getItem("token") ||
+          localStorage.getItem("access_token") ||
+          "";
+        setAuthToken(storedToken);
+
+        const rawUser = localStorage.getItem("user");
+        if (rawUser) {
+          try {
+            setCurrentUser(JSON.parse(rawUser));
+          } catch (parseError) {
+            console.error(
+              "Failed to parse user from localStorage:",
+              parseError,
+            );
+          }
+        }
       } catch (err: any) {
         console.error("Token validation error:", err);
         setError(err.message || "Failed to validate invitation.");
@@ -71,36 +88,44 @@ export default function JoinEventPage() {
   const handleRegister = async () => {
     if (!eventData) return;
 
-    if (!currentUserId || currentUserId.trim().length === 0) {
-      alert("Please provide a valid User ID first!");
+    if (!authToken) {
+      alert("Please log in or sign up to accept this invitation.");
       return;
     }
 
     setIsSubmitting(true);
-    localStorage.setItem("test_user_id", currentUserId);
-    localStorage.setItem("test_user_email", currentEmail);
 
     try {
-      const response = await fetch(`http://localhost:3000/registration`, {
+      let response = await fetch(`http://localhost:3000/invite/accept`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify({
-          eventId: eventData.id,
-          userId: currentUserId,
-          userEmail: currentEmail || undefined,
-        }),
+        body: JSON.stringify({ token }),
       });
+
+      // Backward-compatible fallback for older backend versions.
+      if (response.status === 404) {
+        response = await fetch(`http://localhost:3000/registration`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            eventId: eventData.id,
+            userId: currentUser?.id,
+            userEmail: currentUser?.email || undefined,
+          }),
+        });
+      }
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         let errorMessage = errData.message;
         if (Array.isArray(errorMessage)) errorMessage = errorMessage.join(", ");
-        throw new Error(
-          errorMessage ||
-            "Registration failed. You might already be registered.",
-        );
+        throw new Error(errorMessage || "Registration failed.");
       }
 
       setRegistered(true);
@@ -163,6 +188,12 @@ export default function JoinEventPage() {
   }
 
   const coverImage = eventData.imageUrl?.trim() || "/window.svg";
+  const loginRedirect = token
+    ? `/login?next=${encodeURIComponent(`/join/${token}`)}`
+    : "/login";
+  const registrationRedirect = token
+    ? `/registration?next=${encodeURIComponent(`/join/${token}`)}`
+    : "/registration";
 
   return (
     <div className={styles.pageContainer}>
@@ -237,32 +268,61 @@ export default function JoinEventPage() {
           </div>
         ) : (
           <>
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Your User ID</label>
-              <input
-                type="text"
-                className={styles.input}
-                value={currentUserId}
-                onChange={(e) => setCurrentUserId(e.target.value)}
-                placeholder="Enter your user ID..."
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Your Email (Optional)</label>
-              <input
-                type="email"
-                className={styles.input}
-                value={currentEmail}
-                onChange={(e) => setCurrentEmail(e.target.value)}
-                placeholder="Enter your email..."
-              />
-            </div>
+            {authToken ? (
+              <p className={styles.helperText} style={{ marginBottom: "8px" }}>
+                Signed in as {currentUser?.email || "your account"}. Click Join
+                Event to accept this invitation.
+              </p>
+            ) : (
+              <div
+                style={{
+                  marginTop: "8px",
+                  marginBottom: "8px",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  background: "#eff6ff",
+                  border: "1px solid #bfdbfe",
+                }}
+              >
+                <p style={{ margin: 0, color: "#1e3a8a", fontSize: "0.95rem" }}>
+                  Please log in or create an account first to accept this
+                  invitation.
+                </p>
+                <div
+                  style={{ display: "flex", gap: "12px", marginTop: "12px" }}
+                >
+                  <Link
+                    href={loginRedirect}
+                    className={styles.registerButton}
+                    style={{
+                      width: "auto",
+                      textDecoration: "none",
+                      padding: "10px 16px",
+                      fontSize: "0.95rem",
+                    }}
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href={registrationRedirect}
+                    className={styles.registerButton}
+                    style={{
+                      width: "auto",
+                      textDecoration: "none",
+                      padding: "10px 16px",
+                      fontSize: "0.95rem",
+                    }}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
+            )}
 
             <button
               className={styles.registerButton}
               onClick={handleRegister}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !authToken}
               style={{ marginTop: "16px" }}
             >
               {isSubmitting ? "Joining..." : "Join Event"}
