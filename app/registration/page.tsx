@@ -5,11 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
+import Select from "@/components/selecet";
 
-export default function Login() {
+export default function Register() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [phone, setPhone] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [fullName, setFullName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [role, setRole] = useState<string>("MEMBER");
   const [error, setError] = useState<string>("");
@@ -27,16 +30,18 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/auth/register", {
+      const res = await fetch("http://localhost:8000/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, password, role }),
+        body: JSON.stringify({ email, fullName, phone, password, role }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || data.error || "Login failed");
+        throw new Error(
+          data.message || data.error || "Registeration is  failed",
+        );
       }
 
       localStorage.setItem("token", data.access_token);
@@ -56,10 +61,10 @@ export default function Login() {
         {/* Header */}
         <div>
           <h2 className="text-center text-3xl font-bold text-gray-900">
-            Welcome back
+            Welcome to Event Management
           </h2>
           <p className="mt-2 text-center text-base text-gray-600">
-            Sign in to your account
+            Create new account
           </p>
         </div>
 
@@ -72,7 +77,26 @@ export default function Login() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Phone number */}
+            <Input
+              label="Full Name"
+              type="text"
+              placeholder="Enter your Full Name"
+              value={fullName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setFullName(e.target.value)
+              }
+              required
+            />
+            <Input
+              label="Email"
+              type="email"
+              placeholder="Enter your Email"
+              value={email}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
+              required
+            />
             <Input
               label="Phone number"
               type="tel"
@@ -96,25 +120,22 @@ export default function Login() {
               required
             />
 
-            {/* Role dropdown */}
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Role
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="MEMBER">Member</option>
-                <option value="ADMIN">Admin</option>
-                <option value="VOLUNTEER">Volunteer</option>
-              </select>
-            </div>
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Role
+            </label>
+            <Select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              options={[
+                { value: "MEMBER", label: "Member" },
+                { value: "ADMIN", label: "Admin" },
+                { value: "VOLUNTEER", label: "Volunteer" },
+              ]}
+            />
           </div>
 
           <Button
@@ -122,12 +143,12 @@ export default function Login() {
             disabled={loading}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            {loading ? "Signing in..." : "Login"}
+            {loading ? "Signing in..." : "Register"}
           </Button>
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
+              Do you have account?{" "}
               <Link
                 href="/login"
                 className="font-medium text-indigo-600 hover:text-indigo-500"
