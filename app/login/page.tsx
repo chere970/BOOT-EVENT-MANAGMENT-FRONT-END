@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
+import Select from "@/components/selecet";
 
 export default function Login() {
   const router = useRouter();
@@ -84,18 +85,16 @@ export default function Login() {
             >
               Role
             </label>
-            <select
+            <Select
               id="role"
-              name="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              required
-            >
-              <option value="user">MEMBER</option>//
-              <option value="admin">ADMIN</option>
-              <option value="organizer">VOLUNTEER</option>
-            </select>
+              options={[
+                { value: "MEMBER", label: "Member" },
+                { value: "ADMIN", label: "Admin" },
+                { value: "VOLUNTEER", label: "Volunteer" },
+              ]}
+            />
           </div>
           <Button type="submit" isLoading={loading}>
             Login
