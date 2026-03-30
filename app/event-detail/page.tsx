@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Image from "next/image";
 import AdminLayout from "../components/AdminLayout";
 
 interface EventDetail {
@@ -19,6 +18,12 @@ interface EventDetail {
   registrations?: any[];
 }
 
+interface CurrentUser {
+  id?: string;
+  role?: string;
+  userRole?: string;
+}
+
 const EventDetailContent = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -26,6 +31,28 @@ const EventDetailContent = () => {
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteSubmitting, setInviteSubmitting] = useState(false);
+  const [inviteSuccessMessage, setInviteSuccessMessage] = useState<
+    string | null
+  >(null);
+  const [inviteErrorMessage, setInviteErrorMessage] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const rawUser = localStorage.getItem("user");
+    if (!rawUser) {
+      return;
+    }
+
+    try {
+      setCurrentUser(JSON.parse(rawUser));
+    } catch (parseError) {
+      console.error("Failed to parse user from localStorage:", parseError);
+    }
+  }, []);
 
   useEffect(() => {
     if (!id) {
@@ -77,6 +104,92 @@ const EventDetailContent = () => {
     );
   }
 
+  const activeRole = (currentUser?.role || currentUser?.userRole || "")
+    .toString()
+    .toUpperCase();
+  const isOrganizerOwner =
+    !!currentUser?.id &&
+    currentUser.id.toString() === event.createdById.toString();
+  const canSendInvitations =
+    activeRole === "ADMIN" ||
+    activeRole === "VOLUNTEER" ||
+    activeRole === "ORGANIZER" ||
+    isOrganizerOwner;
+
+  const handleSendInvitation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const normalizedEmail = inviteEmail.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    setInviteSuccessMessage(null);
+    setInviteErrorMessage(null);
+
+    if (!emailRegex.test(normalizedEmail)) {
+      setInviteErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    setInviteSubmitting(true);
+    const token = localStorage.getItem("token");
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const payload = {
+      eventId: event.id,
+      email: normalizedEmail,
+    };
+
+    try {
+      // Some API versions expose /invite and others /invitation; this keeps the UI compatible.
+      const endpoints = [
+        "http://localhost:3000/invite",
+        "http://localhost:3000/invitation",
+      ];
+
+      let success = false;
+      let lastError = "Failed to send invitation.";
+
+      for (const endpoint of endpoints) {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          success = true;
+          break;
+        }
+
+        const errData = await response.json().catch(() => ({}));
+        const message = errData?.message;
+        lastError = Array.isArray(message)
+          ? message.join(", ")
+          : message || lastError;
+
+        if (response.status !== 404) {
+          break;
+        }
+      }
+
+      if (!success) {
+        throw new Error(lastError);
+      }
+
+      setInviteSuccessMessage(`Invitation sent to ${normalizedEmail}.`);
+      setInviteEmail("");
+    } catch (err: any) {
+      setInviteErrorMessage(err?.message || "Failed to send invitation.");
+    } finally {
+      setInviteSubmitting(false);
+    }
+  };
+
   const coverImage = event.imageUrl?.trim();
   // "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80";
 
@@ -92,7 +205,7 @@ const EventDetailContent = () => {
       <div className="bg-white p-6 md:p-8">
         <div className="max-w-5xl mx-auto">
           {/* Main Hero Image */}
-          <div className="w-full h-[60vh] rounded-[32px] overflow-hidden mb-12 shadow-sm border border-gray-100">
+          <div className="w-full h-[60vh] rounded-4xl overflow-hidden mb-12 shadow-sm border border-gray-100">
             <img
               src={coverImage}
               alt={event.title}
@@ -140,6 +253,52 @@ const EventDetailContent = () => {
               </> */}
             {/* )} */}
           </div>
+
+          {canSendInvitations && (
+            <div className="mb-12 rounded-2xl border border-gray-200 bg-gray-50 p-5 md:p-6">
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Send Invitation
+                </h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  Invite attendees by email to join this event.
+                </p>
+              </div>
+
+              <form
+                onSubmit={handleSendInvitation}
+                className="flex flex-col gap-3 md:flex-row"
+              >
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  disabled={inviteSubmitting}
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={inviteSubmitting}
+                  className="inline-flex min-w-42.5 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {inviteSubmitting ? "Sending..." : "Send Invitation"}
+                </button>
+              </form>
+
+              {inviteSuccessMessage && (
+                <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                  {inviteSuccessMessage}
+                </p>
+              )}
+              {inviteErrorMessage && (
+                <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {inviteErrorMessage}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Gallery Thumbnail Strip */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12">
