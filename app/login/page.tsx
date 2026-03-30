@@ -21,7 +21,7 @@ export default function Login() {
   const safeRedirectPath =
     nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")
       ? nextPath
-      : "./dahsboard";
+      : "./events";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

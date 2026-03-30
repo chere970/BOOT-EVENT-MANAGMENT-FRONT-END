@@ -22,7 +22,7 @@ export default function Register() {
   const safeRedirectPath =
     nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")
       ? nextPath
-      : "/dashboard";
+      : "/events";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
