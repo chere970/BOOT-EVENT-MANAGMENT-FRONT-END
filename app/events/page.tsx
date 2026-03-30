@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { RiGroupLine } from "react-icons/ri";
 import { FaStar } from "react-icons/fa";
@@ -18,8 +18,11 @@ interface Event {
   registrations?: any[];
 }
 
+type EventFilter = "All" | "Today" | "Last Year" | "Upcoming Events";
+
 const EventsPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
+  const [activeFilter, setActiveFilter] = useState<EventFilter>("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,6 +70,59 @@ const EventsPage = () => {
     return { month, day, time: timeStr };
   };
 
+  const parseEventDate = (dateString?: string) => {
+    if (!dateString) {
+      return null;
+    }
+
+    const parsed = new Date(dateString);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const filters: EventFilter[] = [
+    "All",
+    "Today",
+    "Last Year",
+    "Upcoming Events",
+  ];
+
+  const filteredEvents = useMemo(() => {
+    const now = new Date();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const tomorrowStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+    );
+    const lastYear = now.getFullYear() - 1;
+
+    return events.filter((event) => {
+      const eventStartDate = parseEventDate(event.startDate);
+
+      if (!eventStartDate) {
+        return activeFilter === "All";
+      }
+
+      if (activeFilter === "Today") {
+        return eventStartDate >= todayStart && eventStartDate < tomorrowStart;
+      }
+
+      if (activeFilter === "Last Year") {
+        return eventStartDate.getFullYear() === lastYear;
+      }
+
+      if (activeFilter === "Upcoming Events") {
+        return eventStartDate >= todayStart;
+      }
+
+      return true;
+    });
+  }, [activeFilter, events]);
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -83,17 +139,16 @@ const EventsPage = () => {
     );
   }
 
-  const filters = ["All", "Today", "Last year", "Upcoming Events"];
-
   return (
     <div>
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-8">
-        {filters.map((f, i) => (
+        {filters.map((f) => (
           <button
-            key={i}
+            key={f}
+            onClick={() => setActiveFilter(f)}
             className={`px-4 py-1.5 rounded-full text-xs font-medium border ${
-              f === "Last year"
+              activeFilter === f
                 ? "bg-gray-200 border-gray-300 text-gray-700"
                 : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50"
             }`}
@@ -105,7 +160,7 @@ const EventsPage = () => {
 
       {/* Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map((event, index) => {
+        {filteredEvents.map((event) => {
           const { month, day, time } = formatDateLabel(event.startDate);
           const registrationsCount =
             event.registrations?.length ||
@@ -118,8 +173,7 @@ const EventsPage = () => {
           //   "Education & Academic Events",
           //   "Ceremonies & Celebrations",
           // ];
-          const categories = event.title;
-          const mockCategory = categories[index % categories.length];
+          const mockCategory = event.title;
 
           return (
             <Link
@@ -144,7 +198,7 @@ const EventsPage = () => {
               {/* Card Content */}
               <div className="p-5 flex">
                 {/* Date Block */}
-                <div className="flex flex-col items-center mr-5 min-w-[3rem]">
+                <div className="flex flex-col items-center mr-5 min-w-12">
                   <span className="text-blue-600 font-bold text-sm tracking-wider">
                     {month}
                   </span>
@@ -184,9 +238,9 @@ const EventsPage = () => {
             </Link>
           );
         })}
-        {events.length === 0 && !loading && !error && (
+        {filteredEvents.length === 0 && !loading && !error && (
           <p className="text-gray-500 col-span-3 text-center py-10">
-            No events found.
+            No events found for "{activeFilter}".
           </p>
         )}
       </div>
