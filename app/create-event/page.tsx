@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 
 interface CurrentUser {
   id?: string;
+  role?: string;
+  userRole?: string;
 }
 
 export default function CreateEventPage() {
@@ -33,6 +35,18 @@ export default function CreateEventPage() {
 
     try {
       const parsedUser: CurrentUser = JSON.parse(rawUser);
+      const activeRole = (parsedUser.role || parsedUser.userRole || "")
+        .toString()
+        .toUpperCase();
+
+      if (activeRole === "MEMBER") {
+        setError(
+          "Members cannot create events. Please browse and join events.",
+        );
+        router.push("/member");
+        return;
+      }
+
       if (parsedUser?.id) {
         setFormData((prev) => ({
           ...prev,
@@ -42,7 +56,7 @@ export default function CreateEventPage() {
     } catch (parseError) {
       console.error("Failed to parse user from localStorage:", parseError);
     }
-  }, []);
+  }, [router]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,

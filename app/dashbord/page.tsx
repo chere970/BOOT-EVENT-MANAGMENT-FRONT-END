@@ -44,6 +44,22 @@ export default function Dashboard() {
         return;
       }
 
+      const rawUser = localStorage.getItem("user");
+      if (rawUser) {
+        try {
+          const parsedUser = JSON.parse(rawUser);
+          const activeRole = (parsedUser?.role || parsedUser?.userRole || "")
+            .toString()
+            .toUpperCase();
+          if (activeRole === "MEMBER") {
+            router.push("/member");
+            return;
+          }
+        } catch (parseError) {
+          console.error("Failed to parse user from localStorage:", parseError);
+        }
+      }
+
       try {
         setLoading(true);
         const eventsRes = await fetch("http://localhost:3000/events?limit=5", {
