@@ -130,7 +130,7 @@ export default function CreateEventPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <h1 className={styles.pageTitle}>Create New Event</h1>
+      <h1 className={styles.pageTitle}>Enter event detals below </h1>
 
       <div className={styles.formCard}>
         {error && <div className={styles.errorMsg}>{error}</div>}
