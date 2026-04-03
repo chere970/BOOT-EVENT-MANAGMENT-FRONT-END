@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { RiGroupLine } from "react-icons/ri";
+import { RiGroupLine, RiMapPinLine, RiCalendarLine } from "react-icons/ri";
 import { FaStar } from "react-icons/fa";
 
 interface Event {
@@ -173,6 +173,38 @@ const EventsPage = () => {
     return Number.isNaN(parsed.getTime()) ? null : parsed;
   };
 
+  const formatEventDateRange = (
+    startDateString?: string,
+    endDateString?: string,
+  ) => {
+    const start = parseEventDate(startDateString);
+    const end = parseEventDate(endDateString);
+
+    if (!start) {
+      return "Time TBD";
+    }
+
+    const startLabel = start.toLocaleString("en-US", {
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    if (!end) {
+      return startLabel;
+    }
+
+    const endLabel = end.toLocaleString("en-US", {
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return `${startLabel} - ${endLabel}`;
+  };
+
   const parseAttendeeCapacity = (event: Event) => {
     // const rawValue = event.atendeeCapacity;
     const rawValue = event.attendeeCapacity;
@@ -316,7 +348,11 @@ const EventsPage = () => {
       {/* Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEvents.map((event) => {
-          const { month, day, time } = formatDateLabel(event.startDate);
+          const { month, day } = formatDateLabel(event.startDate);
+          const dateTimeRange = formatEventDateRange(
+            event.startDate,
+            event.endDate,
+          );
           const registrationsCount = parseRegistrationsCount(event);
           const attendeeCapacity = parseAttendeeCapacity(event);
           const coverImage = event.imageUrl?.trim();
@@ -362,14 +398,28 @@ const EventsPage = () => {
                 </div>
 
                 {/* Details Block */}
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1 truncate">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1.5 truncate">
                     {event.title}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-2 truncate">
-                    {event.location || "Online / Unknown Location"}
-                  </p>
-                  <p className="text-sm text-gray-500 mb-4">{time}</p>
+
+                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <RiMapPinLine
+                      className="shrink-0 mr-1.5 text-gray-400"
+                      size={15}
+                    />
+                    <span className="truncate">
+                      {event.location || "Online / Unknown Location"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-start text-sm text-gray-500 mb-4">
+                    <RiCalendarLine
+                      className="shrink-0 mt-0.5 mr-1.5 text-gray-400"
+                      size={15}
+                    />
+                    <span className="leading-snug">{dateTimeRange}</span>
+                  </div>
 
                   {/* Footer Row */}
                   <div className="flex items-center text-sm text-gray-500">

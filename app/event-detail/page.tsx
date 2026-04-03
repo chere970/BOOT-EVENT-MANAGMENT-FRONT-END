@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { RiMapPinLine, RiCalendarLine } from "react-icons/ri";
 import AdminLayout from "../components/AdminLayout";
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
@@ -801,7 +802,42 @@ const EventDetailContent = () => {
     }
   };
 
+  const parseEventDate = (dateString?: string) => {
+    if (!dateString) return null;
+    const parsed = new Date(dateString);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const formatEventDateRange = (
+    startDateString?: string,
+    endDateString?: string,
+  ) => {
+    const start = parseEventDate(startDateString);
+    const end = parseEventDate(endDateString);
+
+    if (!start) return "Time TBD";
+
+    const startLabel = start.toLocaleString("en-US", {
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    if (!end) return startLabel;
+
+    const endLabel = end.toLocaleString("en-US", {
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return `${startLabel} - ${endLabel}`;
+  };
+
   const coverImage = event.imageUrl?.trim();
+  const dateTimeRange = formatEventDateRange(event.startDate, event.endDate);
 
   return (
     <AdminLayout title={event.title}>
@@ -814,6 +850,35 @@ const EventDetailContent = () => {
               alt={event.title}
               className="w-full h-full object-cover"
             />
+          </div>
+
+          {/* Event Metadata (Date & Location) */}
+          <div className="flex flex-col md:flex-row gap-6 mb-12 border-b border-gray-100 pb-8 -mt-4">
+            <div className="flex items-center text-gray-700 bg-gray-50 px-5 py-3 rounded-2xl border border-gray-100">
+              <div className="bg-white p-2 rounded-xl border border-gray-200 shadow-sm mr-4">
+                <RiCalendarLine className="text-blue-600" size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-0.5">
+                  Date & Time
+                </p>
+                <p className="font-semibold text-gray-900">{dateTimeRange}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center text-gray-700 bg-gray-50 px-5 py-3 rounded-2xl border border-gray-100">
+              <div className="bg-white p-2 rounded-xl border border-gray-200 shadow-sm mr-4">
+                <RiMapPinLine className="text-red-500" size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-0.5">
+                  Location
+                </p>
+                <p className="font-semibold text-gray-900 md:truncate md:max-w-xs">
+                  {event.location || "Online / Unknown Location"}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Event Description */}
