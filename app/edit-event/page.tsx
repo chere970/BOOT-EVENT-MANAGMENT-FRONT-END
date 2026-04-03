@@ -11,6 +11,74 @@ interface CurrentUser {
   userRole?: string;
 }
 
+const API_BASES = ["http://localhost:3000", "http://localhost:3002"];
+
+function buildApiCandidates(paths: string[]) {
+  const candidates: string[] = [];
+  for (const base of API_BASES) {
+    for (const path of paths) {
+      candidates.push(`${base}${path}`);
+    }
+  }
+  return candidates;
+}
+
+async function requestWithFallback(
+  urls: string[],
+  init?: RequestInit,
+): Promise<{ response: Response; url: string }> {
+  let lastResponse: Response | null = null;
+
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, init);
+      if (response.ok) {
+        return { response, url };
+      }
+      lastResponse = response;
+    } catch {
+      continue;
+    }
+  }
+
+  if (lastResponse) {
+    return { response: lastResponse, url: "" };
+  }
+
+  throw new Error("No available API endpoint responded successfully.");
+}
+
+async function requestWithMethodFallback(
+  urls: string[],
+  methods: string[],
+  init?: RequestInit,
+): Promise<{ response: Response; url: string; method: string }> {
+  let lastResponse: Response | null = null;
+
+  for (const method of methods) {
+    for (const url of urls) {
+      try {
+        const response = await fetch(url, {
+          ...init,
+          method,
+        });
+        if (response.ok) {
+          return { response, url, method };
+        }
+        lastResponse = response;
+      } catch {
+        continue;
+      }
+    }
+  }
+
+  if (lastResponse) {
+    return { response: lastResponse, url: "", method: methods[0] || "PATCH" };
+  }
+
+  throw new Error("No available API endpoint responded successfully.");
+}
+
 export default function EditEventPage() {
   return (
     <Suspense fallback={<div className={styles.pageContainer}>Loading...</div>}>
@@ -83,7 +151,23 @@ function EditEventContent() {
 
     const fetchEvent = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/event/${editId}`);
+        const token =
+          localStorage.getItem("token") ||
+          localStorage.getItem("access_token") ||
+          localStorage.getItem("authToken");
+        const authHeaders: HeadersInit = token
+          ? { Authorization: `Bearer ${token}` }
+          : {};
+
+        const candidates = buildApiCandidates([
+          `/event/${editId}`,
+          `/events/${editId}`,
+        ]);
+
+        const { response: res } = await requestWithFallback(candidates, {
+          headers: authHeaders,
+        });
+
         if (!res.ok) throw new Error("Failed to fetch event data.");
         const data = await res.json();
 
@@ -126,8 +210,6 @@ function EditEventContent() {
     setSuccess(null);
 
     try {
-      const endpoint = `http://localhost:3000/event/${editId}`;
-
       const token =
         localStorage.getItem("token") ||
         localStorage.getItem("access_token") ||
@@ -137,25 +219,35 @@ function EditEventContent() {
         ? { Authorization: `Bearer ${token}` }
         : {};
 
-      const eventResponse = await fetch(endpoint, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          ...authHeaders,
+      const updateCandidates = buildApiCandidates([
+        `/event/${editId}`,
+        `/events/${editId}`,
+        `/event/update/${editId}`,
+        `/events/update/${editId}`,
+      ]);
+
+      const { response: eventResponse } = await requestWithMethodFallback(
+        updateCandidates,
+        ["PATCH", "PUT"],
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders,
+          },
+          body: JSON.stringify({
+            ...formData,
+            attendeeCapacity: formData.atendeeCapacity
+              ? Number(formData.atendeeCapacity)
+              : undefined,
+            atendeeCapacity: formData.atendeeCapacity
+              ? Number(formData.atendeeCapacity)
+              : undefined,
+            endDate: formData.endDate || undefined,
+            description: formData.description || undefined,
+            location: formData.location || undefined,
+          }),
         },
-        body: JSON.stringify({
-          ...formData,
-          attendeeCapacity: formData.atendeeCapacity
-            ? Number(formData.atendeeCapacity)
-            : undefined,
-          atendeeCapacity: formData.atendeeCapacity
-            ? Number(formData.atendeeCapacity)
-            : undefined,
-          endDate: formData.endDate || undefined,
-          description: formData.description || undefined,
-          location: formData.location || undefined,
-        }),
-      });
+      );
 
       if (!eventResponse.ok) {
         let errMsg = "Failed to update the event.";
@@ -170,8 +262,13 @@ function EditEventContent() {
         const imageFormData = new FormData();
         imageFormData.append("file", imageFile);
 
-        const imageResponse = await fetch(
-          `http://localhost:3000/event/${editId}/image`,
+        const imageCandidates = buildApiCandidates([
+          `/event/${editId}/image`,
+          `/events/${editId}/image`,
+        ]);
+
+        const { response: imageResponse } = await requestWithFallback(
+          imageCandidates,
           {
             method: "POST",
             headers: authHeaders,
@@ -190,7 +287,8 @@ function EditEventContent() {
       // Optional: Add new Goal on update
       if (formData.goalTitle.trim()) {
         try {
-          await fetch("http://localhost:3000/event-goal", {
+          const goalCandidates = buildApiCandidates(["/event-goal"]);
+          await requestWithFallback(goalCandidates, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -218,7 +316,8 @@ function EditEventContent() {
             userId = pu.id || pu.userId || pu.sub;
           }
 
-          await fetch("http://localhost:3000/event-note", {
+          const noteCandidates = buildApiCandidates(["/event-note"]);
+          await requestWithFallback(noteCandidates, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
