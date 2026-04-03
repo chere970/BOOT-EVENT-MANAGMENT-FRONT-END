@@ -844,12 +844,25 @@ const EventDetailContent = () => {
       <div className="bg-white p-6 md:p-8">
         <div className="max-w-5xl mx-auto">
           {/* Hero Image */}
-          <div className="w-full h-[60vh] rounded-4xl overflow-hidden mb-12 shadow-sm border border-gray-100">
+          <div className="w-full h-[60vh] rounded-4xl overflow-hidden mb-12 shadow-sm border border-gray-100 relative group">
             <img
               src={coverImage}
               alt={event.title}
               className="w-full h-full object-cover"
             />
+            {isAdmin && (
+              <div className="absolute top-6 right-6 z-10">
+                <Link
+                  href={`/edit-event?id=${event.id}`}
+                  className="group flex items-center gap-2.5 rounded-full bg-white/95 backdrop-blur-md px-6 py-3 text-sm font-bold text-gray-900 shadow-lg hover:shadow-xl hover:bg-white transition-all transform hover:scale-105"
+                >
+                  <span className="text-blue-600 bg-blue-100 p-1.5 rounded-full flex items-center justify-center shrink-0">
+                    ✏️
+                  </span>
+                  <span>Edit Event</span>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Event Metadata (Date & Location) */}
