@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import styles from "./page.module.css";
+import AdminLayout from "@/app/components/AdminLayout";
 
 interface Event {
   id: string;
@@ -178,7 +178,7 @@ export default function OrganizerScanPage() {
         const errData = await scanResponse.json().catch(() => ({}));
         throw new Error(
           errData.message ||
-            "Backend rejected the ticket verification. It may belond to another event or already be checked in.",
+            "Backend rejected the ticket verification. It may belong to another event or already be checked in.",
         );
       }
 
@@ -232,15 +232,9 @@ export default function OrganizerScanPage() {
 
   if (authLoading) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          backgroundColor: "#f3f4f6",
-          padding: "40px 20px",
-        }}
-      >
-        <div className={styles.pageContainer}>
-          <p className={styles.subtitle}>Checking access...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-5">
+        <div className="max-w-2xl w-full text-center">
+          <p className="text-gray-500 font-medium">Checking access...</p>
         </div>
       </div>
     );
@@ -251,44 +245,34 @@ export default function OrganizerScanPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f3f4f6",
-        padding: "40px 20px",
-      }}
-    >
-      <div
-        style={{ maxWidth: "600px", margin: "0 auto", marginBottom: "20px" }}
-      >
+    // <AdminLayout title="Organizer Scanner">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-2xl mx-auto mb-6">
         <Link
           href="/events"
-          style={{
-            color: "#4f46e5",
-            textDecoration: "none",
-            display: "inline-flex",
-            alignItems: "center",
-            fontWeight: "500",
-            gap: "6px",
-          }}
+          className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"
         >
-          ← Back to General Events
+          <span className="mr-2">←</span> Back to General Events
         </Link>
       </div>
 
-      <div className={styles.pageContainer}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Organizer Portal</h1>
-          <p className={styles.subtitle}>
+      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-10">
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">
+            Organizer Portal
+          </h1>
+          <p className="text-gray-500 text-lg">
             Scan and verify attendee tickets securely
           </p>
         </div>
 
-        <form onSubmit={handleManualVerify}>
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Select Event</label>
+        <form onSubmit={handleManualVerify} className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Select Event
+            </label>
             <select
-              className={styles.select}
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value)}
             >
@@ -303,49 +287,33 @@ export default function OrganizerScanPage() {
           </div>
 
           {!useScanner ? (
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Ticket Number</label>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Ticket Number
+              </label>
               <input
                 type="text"
-                className={`${styles.input} ${styles.ticketInput}`}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-mono text-lg tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm placeholder-gray-400"
                 placeholder="e.g. ABCD-1234"
                 value={scanTicket}
                 onChange={(e) => setScanTicket(e.target.value.toUpperCase())}
               />
-              <div style={{ marginTop: "12px", textAlign: "center" }}>
-                <span style={{ fontSize: "0.9rem", color: "#6b7280" }}>OR</span>
+              <div className="mt-4 text-center">
+                <span className="text-sm font-medium text-gray-400 block mb-3 uppercase tracking-wider">
+                  OR
+                </span>
                 <button
                   type="button"
                   onClick={() => setUseScanner(true)}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    marginTop: "8px",
-                    padding: "12px",
-                    backgroundColor: "#e0e7ff",
-                    color: "#4f46e5",
-                    border: "1px solid #c7d2fe",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontWeight: "600",
-                  }}
+                  className="w-full py-3 px-4 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-xl hover:bg-indigo-100 font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
                 >
-                  📸 Open QR Scanner
+                  <span className="text-xl">📸</span> Open QR Scanner
                 </button>
               </div>
             </div>
           ) : (
-            <div className={styles.formGroup} style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  border: "2px solid #4f46e5",
-                  marginBottom: "16px",
-                  backgroundColor: "#000",
-                }}
-              >
-                {/* Dynamically loads webcam */}
+            <div className="text-center rounded-2xl bg-gray-50 p-4 border border-gray-100 shadow-inner">
+              <div className="rounded-xl overflow-hidden border-2 border-indigo-500 mb-4 bg-black shadow-md aspect-square max-w-md mx-auto relative">
                 <Scanner
                   onScan={handleScanSuccess}
                   onError={(err) => console.log(err)}
@@ -355,15 +323,7 @@ export default function OrganizerScanPage() {
               <button
                 type="button"
                 onClick={() => setUseScanner(false)}
-                style={{
-                  backgroundColor: "#fee2e2",
-                  color: "#ef4444",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "6px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                }}
+                className="py-2.5 px-6 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 font-semibold transition-colors shadow-sm"
               >
                 Cancel Scanning
               </button>
@@ -373,7 +333,7 @@ export default function OrganizerScanPage() {
           {!useScanner && (
             <button
               type="submit"
-              className={styles.verifyButton}
+              className="w-full py-3.5 bg-blue-600 text-white rounded-xl text-lg font-bold hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 disabled:bg-gray-300 disabled:text-gray-500 transition-all transform hover:-translate-y-0.5 disabled:translate-y-0 disabled:cursor-not-allowed shadow-md"
               disabled={isVerifying || events.length === 0}
             >
               {isVerifying ? "Verifying..." : "Verify & Check-In"}
@@ -383,16 +343,29 @@ export default function OrganizerScanPage() {
 
         {result && (
           <div
-            className={`${styles.resultBox} ${result.type === "success" ? styles.resultSuccess : styles.resultError}`}
+            className={`mt-8 p-6 rounded-xl border flex items-start gap-4 ${
+              result.type === "success"
+                ? "bg-green-50 border-green-200 text-green-900"
+                : "bg-red-50 border-red-200 text-red-900"
+            }`}
           >
-            <h3 className={styles.resultTitle}>
-              {result.type === "success" ? "✅ " : "❌ "}
-              {result.title}
-            </h3>
-            <p className={styles.resultMessage}>{result.message}</p>
+            <div className="text-2xl mt-0.5">
+              {result.type === "success" ? "✅" : "❌"}
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-1">{result.title}</h3>
+              <p
+                className={
+                  result.type === "success" ? "text-green-800" : "text-red-800"
+                }
+              >
+                {result.message}
+              </p>
+            </div>
           </div>
         )}
       </div>
     </div>
+    // </AdminLayout>
   );
 }

@@ -17,6 +17,7 @@ export default function CreateEventPage() {
     title: "",
     description: "",
     location: "",
+    atendeeCapacity: "",
     startDate: "",
     endDate: "",
     createdById: "",
@@ -86,6 +87,9 @@ export default function CreateEventPage() {
         },
         body: JSON.stringify({
           ...formData,
+          atendeeCapacity: formData.atendeeCapacity
+            ? Number(formData.atendeeCapacity)
+            : undefined,
           endDate: formData.endDate || undefined,
           description: formData.description || undefined,
           location: formData.location || undefined,
@@ -193,6 +197,22 @@ export default function CreateEventPage() {
               value={formData.location}
               onChange={handleInputChange}
               placeholder="E.g., Central Park, NY or Online"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor="atendeeCapacity">
+              Attendee Capacity
+            </label>
+            <input
+              className={styles.input}
+              id="atendeeCapacity"
+              name="atendeeCapacity"
+              type="number"
+              min="1"
+              value={formData.atendeeCapacity}
+              onChange={handleInputChange}
+              placeholder="E.g., 250"
             />
           </div>
 
