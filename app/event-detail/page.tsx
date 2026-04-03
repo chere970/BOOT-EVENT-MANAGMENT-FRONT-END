@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import AdminLayout from "../components/AdminLayout";
 
 interface EventDetail {
@@ -253,6 +254,25 @@ const EventDetailContent = () => {
               </> */}
             {/* )} */}
           </div>
+
+          {activeRole === "VOLUNTEER" && (
+            <div className="mb-8 rounded-2xl border border-indigo-100 bg-indigo-50 p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-indigo-900">
+                  Volunteer Tools
+                </h2>
+                <p className="mt-1 text-sm text-indigo-700">
+                  Access your portal to scan tickets and manage attendee check-ins.
+                </p>
+              </div>
+              <Link
+                href="/organizer/scan"
+                className="w-full md:w-auto inline-flex items-center justify-center rounded-xl bg-indigo-600 px-8 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-indigo-700 hover:shadow-md transform hover:-translate-y-0.5"
+              >
+                📸 Open Ticket Scanner
+              </Link>
+            </div>
+          )}
 
           {canSendInvitations && (
             <div className="mb-12 rounded-2xl border border-gray-200 bg-gray-50 p-5 md:p-6">

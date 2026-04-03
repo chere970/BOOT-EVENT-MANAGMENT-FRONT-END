@@ -40,11 +40,11 @@ export default function CreateEventPage() {
         .toString()
         .toUpperCase();
 
-      if (activeRole === "MEMBER") {
+      if (activeRole !== "ADMIN") {
         setError(
-          "Members cannot create events. Please browse and join events.",
+          "Only Admins can create events. You do not have permission to access this page.",
         );
-        router.push("/member");
+        router.push(activeRole === "MEMBER" ? "/member" : "/dashbord");
         return;
       }
 

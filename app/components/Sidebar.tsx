@@ -41,6 +41,7 @@ const Sidebar = () => {
   const displayName = user?.fullName || user?.name || user?.username || "User";
   const activeRole = (user?.role || user?.userRole || "").toUpperCase();
   const isMember = activeRole === "MEMBER";
+  const isAdmin = activeRole === "ADMIN";
   const roleLabel = activeRole || "Event Manager";
   const panelLabel = isMember ? "Member Panel" : "Admin Panel";
   const dashboardHref = isMember ? "/member" : "/dashbord";
@@ -126,7 +127,7 @@ const Sidebar = () => {
             )}
           </Link>
 
-          {!isMember && (
+          {isAdmin && (
             <Link
               href="/create-event"
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname === "/create-event" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
