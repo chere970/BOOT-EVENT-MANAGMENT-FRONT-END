@@ -841,15 +841,26 @@ const EventDetailContent = () => {
 
   return (
     <AdminLayout title={event.title}>
-      <div className="bg-white p-6 md:p-8">
-        <div className="max-w-5xl mx-auto">
+      <div className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_#fef3c7_0%,_#ffffff_38%,_#eef2ff_100%)] p-6 md:p-8">
+        <div className="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+        <div className="pointer-events-none absolute top-24 -right-28 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
+        <div className="max-w-6xl mx-auto relative z-10">
           {/* Hero Image */}
-          <div className="w-full h-[60vh] rounded-4xl overflow-hidden mb-12 shadow-sm border border-gray-100 relative group">
+          <div className="w-full rounded-4xl overflow-hidden mb-10 shadow-[0_20px_50px_-20px_rgba(15,23,42,0.35)] border border-white/60 relative group bg-slate-50/80 backdrop-blur-sm">
             <img
               src={coverImage}
               alt={event.title}
-              className="w-full h-full object-cover"
+              className="block w-full h-auto object-contain"
             />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-slate-900/65 via-slate-900/15 to-transparent" />
+            <div className="absolute left-5 bottom-5 rounded-2xl border border-white/30 bg-white/15 px-4 py-3 backdrop-blur-md">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
+                Featured Event
+              </p>
+              <h2 className="mt-1 text-xl md:text-2xl font-extrabold text-white">
+                {event.title}
+              </h2>
+            </div>
             {isAdmin && (
               <div className="absolute top-6 right-6 z-10">
                 <Link
@@ -866,28 +877,28 @@ const EventDetailContent = () => {
           </div>
 
           {/* Event Metadata (Date & Location) */}
-          <div className="flex flex-col md:flex-row gap-6 mb-12 border-b border-gray-100 pb-8 -mt-4">
-            <div className="flex items-center text-gray-700 bg-gray-50 px-5 py-3 rounded-2xl border border-gray-100">
-              <div className="bg-white p-2 rounded-xl border border-gray-200 shadow-sm mr-4">
-                <RiCalendarLine className="text-blue-600" size={24} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 -mt-2">
+            <div className="flex items-center text-slate-700 bg-white/80 px-5 py-4 rounded-2xl border border-white shadow-sm backdrop-blur-md">
+              <div className="bg-blue-50 p-2.5 rounded-xl border border-blue-100 shadow-sm mr-4">
+                <RiCalendarLine className="text-blue-600" size={22} />
               </div>
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-0.5">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.16em] mb-0.5">
                   Date & Time
                 </p>
-                <p className="font-semibold text-gray-900">{dateTimeRange}</p>
+                <p className="font-semibold text-slate-900">{dateTimeRange}</p>
               </div>
             </div>
 
-            <div className="flex items-center text-gray-700 bg-gray-50 px-5 py-3 rounded-2xl border border-gray-100">
-              <div className="bg-white p-2 rounded-xl border border-gray-200 shadow-sm mr-4">
-                <RiMapPinLine className="text-red-500" size={24} />
+            <div className="flex items-center text-slate-700 bg-white/80 px-5 py-4 rounded-2xl border border-white shadow-sm backdrop-blur-md">
+              <div className="bg-rose-50 p-2.5 rounded-xl border border-rose-100 shadow-sm mr-4">
+                <RiMapPinLine className="text-rose-500" size={22} />
               </div>
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-0.5">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.16em] mb-0.5">
                   Location
                 </p>
-                <p className="font-semibold text-gray-900 md:truncate md:max-w-xs">
+                <p className="font-semibold text-slate-900 md:truncate md:max-w-xs">
                   {event.location || "Online / Unknown Location"}
                 </p>
               </div>
@@ -895,17 +906,22 @@ const EventDetailContent = () => {
           </div>
 
           {/* Event Description */}
-          <div className="max-w-none text-gray-900 font-bold leading-relaxed mb-12 space-y-6 text-base tracking-wide">
-            {event.description ? (
-              event.description.split("\n").map((p, i) => <p key={i}>{p}</p>)
-            ) : (
-              <p>The {event.title} was successfully organized...</p>
-            )}
+          <div className="mb-12 rounded-3xl border border-white bg-white/85 p-6 md:p-8 shadow-sm backdrop-blur-md">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500 mb-4">
+              About This Event
+            </p>
+            <div className="max-w-none text-slate-800 font-semibold leading-relaxed space-y-6 text-[15px] md:text-base tracking-wide">
+              {event.description ? (
+                event.description.split("\n").map((p, i) => <p key={i}>{p}</p>)
+              ) : (
+                <p>The {event.title} was successfully organized...</p>
+              )}
+            </div>
           </div>
 
           {/* Volunteer Tools Banner */}
           {isVolunteer && (
-            <div className="mb-8 rounded-2xl border border-indigo-100 bg-indigo-50 p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="mb-8 rounded-3xl border border-indigo-100 bg-gradient-to-r from-indigo-50 via-white to-cyan-50 p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
               <div>
                 <h2 className="text-xl font-bold text-indigo-900">
                   Volunteer Tools
@@ -926,11 +942,11 @@ const EventDetailContent = () => {
 
           {/* ── Event Planning Panel (Goals + Notes) ─────────────── */}
           {isStaff && (
-            <div className="mb-10">
-              <h2 className="text-xl font-extrabold text-gray-900 mb-1">
+            <div className="mb-10 rounded-3xl border border-white bg-white/80 p-5 md:p-6 shadow-sm backdrop-blur-md">
+              <h2 className="text-2xl font-extrabold text-slate-900 mb-1">
                 Event Planning Panel
               </h2>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-slate-500 mb-6">
                 Manage goals and internal staff notes for this event.
               </p>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -961,12 +977,12 @@ const EventDetailContent = () => {
 
           {/* Send Invitation */}
           {canSendInvitations && (
-            <div className="mt-8 mb-12 rounded-2xl border border-gray-200 bg-gray-50 p-5 md:p-6">
+            <div className="mt-8 mb-12 rounded-3xl border border-white bg-gradient-to-br from-slate-50 via-white to-blue-50 p-5 md:p-6 shadow-sm">
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-xl font-bold text-slate-900">
                   Send Invitation
                 </h2>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-slate-600">
                   Invite attendees by email to join this event.
                 </p>
               </div>
