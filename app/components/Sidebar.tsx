@@ -42,6 +42,7 @@ const Sidebar = () => {
   const activeRole = (user?.role || user?.userRole || "").toUpperCase();
   const isMember = activeRole === "MEMBER";
   const isAdmin = activeRole === "ADMIN";
+  const isVolunteer = activeRole === "VOLUNTEER";
   const roleLabel = activeRole || "Event Manager";
   const panelLabel = isMember ? "Member Panel" : "Admin Panel";
   const dashboardHref = isMember ? "/member" : "/dashbord";
@@ -146,6 +147,16 @@ const Sidebar = () => {
               {isMember ? "My Event Activity" : "Event Details"}
             </span>
           </Link>
+
+          {isVolunteer && (
+            <Link
+              href="/organizer/tasks"
+              className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname.startsWith("/organizer/tasks") ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
+            >
+              <RiFileList3Line size={20} />
+              <span className="text-sm">Volunteer Tasks</span>
+            </Link>
+          )}
 
           {!isMember && (
             <Link

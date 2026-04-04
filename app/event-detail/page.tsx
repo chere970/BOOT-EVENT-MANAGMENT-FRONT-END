@@ -841,7 +841,7 @@ const EventDetailContent = () => {
 
   return (
     <AdminLayout title={event.title}>
-      <div className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_#fef3c7_0%,_#ffffff_38%,_#eef2ff_100%)] p-6 md:p-8">
+      <div className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,#fef3c7_0%,#ffffff_38%,#eef2ff_100%)] p-6 md:p-8">
         <div className="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
         <div className="pointer-events-none absolute top-24 -right-28 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
         <div className="max-w-6xl mx-auto relative z-10">
@@ -852,7 +852,7 @@ const EventDetailContent = () => {
               alt={event.title}
               className="block w-full h-auto object-contain"
             />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-slate-900/65 via-slate-900/15 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-linear-to-t from-slate-900/65 via-slate-900/15 to-transparent" />
             <div className="absolute left-5 bottom-5 rounded-2xl border border-white/30 bg-white/15 px-4 py-3 backdrop-blur-md">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
                 Featured Event
@@ -921,22 +921,30 @@ const EventDetailContent = () => {
 
           {/* Volunteer Tools Banner */}
           {isVolunteer && (
-            <div className="mb-8 rounded-3xl border border-indigo-100 bg-gradient-to-r from-indigo-50 via-white to-cyan-50 p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+            <div className="mb-8 rounded-3xl border border-indigo-100 bg-linear-to-r from-indigo-50 via-white to-cyan-50 p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
               <div>
                 <h2 className="text-xl font-bold text-indigo-900">
                   Volunteer Tools
                 </h2>
                 <p className="mt-1 text-sm text-indigo-700">
-                  Access your portal to scan tickets and manage attendee
-                  check-ins.
+                  Manage event tasks and scan tickets from your volunteer
+                  workspace.
                 </p>
               </div>
-              <Link
-                href="/organizer/scan"
-                className="w-full md:w-auto inline-flex items-center justify-center rounded-xl bg-indigo-600 px-8 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-indigo-700 hover:shadow-md transform hover:-translate-y-0.5"
-              >
-                📸 Open Ticket Scanner
-              </Link>
+              <div className="w-full md:w-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Link
+                  href="/organizer/tasks"
+                  className="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-indigo-700 border border-indigo-200 shadow-sm transition hover:bg-indigo-50"
+                >
+                  ✅ Open Task Hub
+                </Link>
+                <Link
+                  href="/organizer/scan"
+                  className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 hover:shadow-md transform hover:-translate-y-0.5"
+                >
+                  📸 Open Scanner
+                </Link>
+              </div>
             </div>
           )}
 
@@ -977,7 +985,7 @@ const EventDetailContent = () => {
 
           {/* Send Invitation */}
           {canSendInvitations && (
-            <div className="mt-8 mb-12 rounded-3xl border border-white bg-gradient-to-br from-slate-50 via-white to-blue-50 p-5 md:p-6 shadow-sm">
+            <div className="mt-8 mb-12 rounded-3xl border border-white bg-linear-to-br from-slate-50 via-white to-blue-50 p-5 md:p-6 shadow-sm">
               <div className="mb-4">
                 <h2 className="text-xl font-bold text-slate-900">
                   Send Invitation
