@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import AdminLayout from "@/app/components/AdminLayout";
+import { apiFetch } from "@/lib/api";
 
 interface Event {
   id: string;
@@ -77,11 +78,7 @@ export default function OrganizerScanPage() {
 
     const fetchEvents = async () => {
       try {
-        const response = await fetch("http://localhost:3000/event", {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
+        const response = await apiFetch("/event");
         if (response.ok) {
           const data = await response.json();
           setEvents(data);
@@ -133,13 +130,8 @@ export default function OrganizerScanPage() {
         };
       } else if (ticket) {
         // Step 1: Lookup the specific registration to get the registrationId using the manual typed ticket
-        const regResponse = await fetch(
-          `http://localhost:3000/registration/${selectedEventId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          },
+        const regResponse = await apiFetch(
+          `/registration/${selectedEventId}`,
         );
         if (!regResponse.ok)
           throw new Error("Could not fetch registration list for this event.");
@@ -165,11 +157,10 @@ export default function OrganizerScanPage() {
       }
 
       // Step 2: Mark attendance successfully via the backend scan endpoint
-      const scanResponse = await fetch(
-        "http://localhost:3000/registration/scan",
+      const scanResponse = await apiFetch(
+        "/registration/scan",
         {
           method: "POST",
-          headers,
           body: JSON.stringify(bodyData),
         },
       );

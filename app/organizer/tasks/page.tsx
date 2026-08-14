@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AdminLayout from "@/app/components/AdminLayout";
+import { API_BASE_URL } from "@/lib/api";
 
 type TaskStatus = "PENDING" | "DONE" | "CLOSED";
 
@@ -39,7 +40,7 @@ interface CurrentUser {
   userRole?: string;
 }
 
-const API_BASES = ["http://localhost:3000", "http://localhost:3002"];
+const API_BASES = [API_BASE_URL];
 
 const buildApiCandidates = (paths: string[]) => {
   const urls: string[] = [];

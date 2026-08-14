@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { RiGroupLine, RiMapPinLine, RiCalendarLine } from "react-icons/ri";
 import { FaStar } from "react-icons/fa";
+import { apiFetch } from "@/lib/api";
 
 interface Event {
   id: string;
@@ -40,19 +41,7 @@ const EventsPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const token =
-          localStorage.getItem("token") ||
-          localStorage.getItem("access_token") ||
-          localStorage.getItem("authToken") ||
-          "";
-
-        const eventHeaders: HeadersInit = token
-          ? { Authorization: `Bearer ${token}` }
-          : {};
-
-        const response = await fetch("http://localhost:3000/event", {
-          headers: eventHeaders,
-        });
+        const response = await apiFetch("/event");
         if (!response.ok) {
           throw new Error("Failed to fetch events");
         }
@@ -76,19 +65,13 @@ const EventsPage = () => {
             }
 
             try {
-              const headers: HeadersInit = token
-                ? { Authorization: `Bearer ${token}` }
-                : {};
-
-              const registrationEndpoints = [
-                `http://localhost:3000/registration/${event.id}`,
-                `http://localhost:3000/registrations/${event.id}`,
+              const registrationPaths = [
+                `/registration/${event.id}`,
+                `/registrations/${event.id}`,
               ];
 
-              for (const endpoint of registrationEndpoints) {
-                const registrationResponse = await fetch(endpoint, {
-                  headers,
-                });
+              for (const path of registrationPaths) {
+                const registrationResponse = await apiFetch(path);
 
                 if (!registrationResponse.ok) {
                   continue;

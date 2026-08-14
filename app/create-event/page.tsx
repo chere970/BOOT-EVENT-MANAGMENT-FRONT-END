@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 
 interface CurrentUser {
   id?: string;
@@ -82,24 +83,14 @@ export default function CreateEventPage() {
     setSuccess(null);
 
     try {
-      const endpoint = "http://localhost:3000/event";
-      const method = "POST";
-
       const token =
         localStorage.getItem("token") ||
         localStorage.getItem("access_token") ||
         localStorage.getItem("authToken");
-      const authHeaders: HeadersInit = token
-        ? { Authorization: `Bearer ${token}` }
-        : {};
 
       // 1. Create the event first
-      const eventResponse = await fetch(endpoint, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          ...authHeaders,
-        },
+      const eventResponse = await apiFetch("/event", {
+        method: "POST",
         body: JSON.stringify({
           ...formData,
           attendeeCapacity: formData.atendeeCapacity
@@ -134,11 +125,10 @@ export default function CreateEventPage() {
         const imageFormData = new FormData();
         imageFormData.append("file", imageFile);
 
-        const imageResponse = await fetch(
-          `http://localhost:3000/event/${eventId}/image`,
+        const imageResponse = await apiFetch(
+          `/event/${eventId}/image`,
           {
             method: "POST",
-            headers: authHeaders,
             body: imageFormData,
           },
         );
@@ -154,12 +144,8 @@ export default function CreateEventPage() {
       // 3. (Optional) Create Event Goal
       if (formData.goalTitle.trim()) {
         try {
-          await fetch("http://localhost:3000/event-goal", {
+          await apiFetch("/event-goal", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...authHeaders,
-            },
             body: JSON.stringify({
               title: formData.goalTitle,
               description: formData.goalDescription || undefined,
@@ -174,12 +160,8 @@ export default function CreateEventPage() {
       // 4. (Optional) Create Event Note
       if (formData.noteContent.trim()) {
         try {
-          await fetch("http://localhost:3000/event-note", {
+          await apiFetch("/event-note", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...authHeaders,
-            },
             body: JSON.stringify({
               content: formData.noteContent,
               eventId,

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AdminLayout from "../components/AdminLayout";
+import { API_BASE_URL } from "@/lib/api";
 
 type TimeRange = "7d" | "30d" | "month" | "all";
 
@@ -54,7 +55,7 @@ type FetchFallbackResult = {
   successfulUrl?: string;
 };
 
-const API_BASES = ["http://localhost:3000", "http://localhost:3002"];
+const API_BASES = [API_BASE_URL];
 
 const DATE_RANGE_OPTIONS: Array<{ value: TimeRange; label: string }> = [
   { value: "7d", label: "Last 7 days" },

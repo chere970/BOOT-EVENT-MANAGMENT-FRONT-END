@@ -7,6 +7,7 @@ import Link from "next/link";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import Select from "@/components/selecet";
+import { apiFetch } from "@/lib/api";
 
 export default function LoginPage() {
   return (
@@ -36,9 +37,8 @@ function LoginContent() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/auth/login", {
+      const res = await apiFetch("/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, password }),
       });
 

@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdminLayout from "../components/AdminLayout";
+import { apiFetch } from "@/lib/api";
 
 interface EventItem {
   id: string;
@@ -36,7 +37,7 @@ export default function MemberPage() {
 
     const fetchEvents = async () => {
       try {
-        const response = await fetch("http://localhost:3000/event");
+        const response = await apiFetch("/event");
         if (!response.ok) {
           throw new Error("Failed to load events");
         }

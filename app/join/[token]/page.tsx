@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "../../event-detail/page.module.css"; // Reuse the event detail styling
+import { apiFetch } from "@/lib/api";
 
 interface EventDetail {
   id: string;
@@ -47,8 +48,8 @@ export default function JoinEventPage() {
 
     const validateToken = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3000/invite/validate/${token}`,
+        const response = await apiFetch(
+          `/invite/validate/${token}`,
         );
         if (!response.ok) {
           throw new Error("Invalid or expired invitation link.");
@@ -96,23 +97,15 @@ export default function JoinEventPage() {
     setIsSubmitting(true);
 
     try {
-      let response = await fetch(`http://localhost:3000/invite/accept`, {
+      let response = await apiFetch(`/invite/accept`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
         body: JSON.stringify({ token }),
       });
 
       // Backward-compatible fallback for older backend versions.
       if (response.status === 404) {
-        response = await fetch(`http://localhost:3000/registration`, {
+        response = await apiFetch(`/registration`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
           body: JSON.stringify({
             eventId: eventData.id,
             userId: currentUser?.id,

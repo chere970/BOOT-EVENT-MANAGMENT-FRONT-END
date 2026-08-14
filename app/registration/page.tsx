@@ -6,6 +6,7 @@ import Link from "next/link";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import Select from "@/components/selecet";
+import { apiFetch } from "@/lib/api";
 
 export default function RegisterPage() {
   return (
@@ -38,9 +39,8 @@ function RegisterContent() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/auth/register", {
+      const res = await apiFetch("/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, fullName, phone, password, role }),
       });
 

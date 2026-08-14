@@ -4,6 +4,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import styles from "../create-event/page.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
 import AdminLayout from "../components/AdminLayout";
+import { apiFetch, API_BASE_URL } from "@/lib/api";
 
 interface CurrentUser {
   id?: string;
@@ -11,7 +12,7 @@ interface CurrentUser {
   userRole?: string;
 }
 
-const API_BASES = ["http://localhost:3000", "http://localhost:3002"];
+const API_BASES = [API_BASE_URL];
 
 function buildApiCandidates(paths: string[]) {
   const candidates: string[] = [];
