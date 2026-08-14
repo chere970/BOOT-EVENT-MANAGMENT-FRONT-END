@@ -1,15 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import Select from "@/components/selecet";
+import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
-export default function Register() {
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-gray-500">Loading...</p></div>}>
+      <RegisterContent />
+    </Suspense>
+  );
+}
+
+function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
   const [phone, setPhone] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
@@ -30,9 +41,8 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/auth/register", {
+      const res = await apiFetch("/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, fullName, phone, password, role }),
       });
 
@@ -44,9 +54,10 @@ export default function Register() {
         );
       }
 
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
+      const receivedToken = data.access_token || data.token;
+      if (receivedToken && data.user) {
+        login(receivedToken, data.user);
+      }
       router.push(safeRedirectPath);
     } catch (err: any) {
       setError(err.message);

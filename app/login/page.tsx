@@ -1,19 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Link from "next/link";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
-import Select from "@/components/selecet";
+import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
-export default function Login() {
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100"><p className="text-gray-500">Loading...</p></div>}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,30 +30,26 @@ export default function Login() {
   const safeRedirectPath =
     nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")
       ? nextPath
-      : "./events";
+      : "/events";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/auth/login", {
+      const res = await apiFetch("/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Login faild");
+        throw new Error(data.error || data.message || "Login failed");
       }
 
-      // Backend returns access_token but fallback handles both keys
       const receivedToken = data.access_token || data.token;
-      localStorage.setItem("token", receivedToken);
-      localStorage.setItem("access_token", receivedToken);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      login(receivedToken, data.user);
       router.push(safeRedirectPath);
     } catch (err: any) {
       setError(err.message);
@@ -72,7 +77,7 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Phone number"
-            type="string"
+            type="text"
             name="phoneNumber"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -88,23 +93,10 @@ export default function Login() {
             required
             autoComplete="current-password"
           />
-          <div>
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Role
-            </label>
-            <Select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              options={[
-                { value: "MEMBER", label: "Member" },
-                { value: "ADMIN", label: "Admin" },
-                { value: "VOLUNTEER", label: "Volunteer" },
-              ]}
-            />
+          <div className="flex justify-end text-sm">
+            <Link href="/forgot-password" className="text-blue-600 hover:underline font-medium">
+              Forgot password?
+            </Link>
           </div>
           <Button type="submit" isLoading={loading}>
             Login

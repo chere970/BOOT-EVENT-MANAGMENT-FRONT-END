@@ -21,22 +21,11 @@ interface StoredUser {
   userRole?: string;
 }
 
+import { useAuth } from "@/context/AuthContext";
+
 const Sidebar = () => {
   const pathname = usePathname();
-  const [user, setUser] = useState<StoredUser | null>(null);
-
-  useEffect(() => {
-    const rawUser = localStorage.getItem("user");
-    if (!rawUser) {
-      return;
-    }
-
-    try {
-      setUser(JSON.parse(rawUser));
-    } catch (parseError) {
-      console.error("Failed to parse user from localStorage:", parseError);
-    }
-  }, []);
+  const { user, logout } = useAuth();
 
   const displayName = user?.fullName || user?.name || user?.username || "User";
   const activeRole = (user?.role || user?.userRole || "").toUpperCase();
@@ -67,7 +56,10 @@ const Sidebar = () => {
 
       {/* User Profile */}
       <div className="px-4 py-2">
-        <div className="px-4 py-3 border border-gray-200 rounded-xl flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors">
+        <Link
+          href="/profile"
+          className="px-4 py-3 border border-gray-200 rounded-xl flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+        >
           <div className="flex items-center space-x-3">
             <img
               src="https://randomuser.me/api/portraits/lego/1.jpg"
@@ -96,7 +88,7 @@ const Sidebar = () => {
               <polyline points="16 15 12 19 8 15"></polyline>
             </svg>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Navigation */}
@@ -194,11 +186,19 @@ const Sidebar = () => {
           )}
 
           <Link
-            href="#"
-            className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors mt-8"
+            href="/my-tickets"
+            className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname === "/my-tickets" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
+          >
+            <RiFileList3Line size={20} />
+            <span className="text-sm">My Tickets</span>
+          </Link>
+
+          <Link
+            href="/profile"
+            className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname === "/profile" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
           >
             <RiSettings4Line size={20} />
-            <span className="text-sm font-medium">Settings</span>
+            <span className="text-sm">My Profile</span>
           </Link>
         </nav>
       </div>

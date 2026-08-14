@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { RiMapPinLine, RiCalendarLine } from "react-icons/ri";
 import AdminLayout from "../components/AdminLayout";
+import { apiFetch } from "@/lib/api";
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
@@ -141,7 +142,7 @@ function EventGoalsPanel({
 
   const fetchGoals = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/event-goal/${eventId}`, {
+      const res = await apiFetch(`/event-goal/${eventId}`, {
         headers: authHeaders,
       });
       if (res.ok) setGoals(await res.json());
@@ -186,7 +187,7 @@ function EventGoalsPanel({
       let lastError = "Failed to add goal.";
 
       for (const payload of payloads) {
-        const res = await fetch("http://localhost:3000/event-goal", {
+        const res = await apiFetch("/event-goal", {
           method: "POST",
           headers: authHeaders,
           credentials: "include",
@@ -219,7 +220,7 @@ function EventGoalsPanel({
 
   const handleDelete = async (id: string) => {
     try {
-      await fetch(`http://localhost:3000/event-goal/${id}`, {
+      await apiFetch(`/event-goal/${id}`, {
         method: "DELETE",
         headers: authHeaders,
       });
@@ -237,7 +238,7 @@ function EventGoalsPanel({
 
   const handleUpdate = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/event-goal/${id}`, {
+      const res = await apiFetch(`/event-goal/${id}`, {
         method: "PATCH",
         headers: authHeaders,
         body: JSON.stringify({
@@ -419,7 +420,7 @@ function EventNotesPanel({
 
   const fetchNotes = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/event-note/${eventId}`, {
+      const res = await apiFetch(`/event-note/${eventId}`, {
         headers: authHeaders,
       });
       if (res.ok) setNotes(await res.json());
@@ -471,7 +472,7 @@ function EventNotesPanel({
       let lastError = "Failed to post note.";
 
       for (const payload of payloads) {
-        const res = await fetch("http://localhost:3000/event-note", {
+        const res = await apiFetch("/event-note", {
           method: "POST",
           headers: authHeaders,
           credentials: "include",
@@ -502,7 +503,7 @@ function EventNotesPanel({
 
   const handleDelete = async (id: string) => {
     try {
-      await fetch(`http://localhost:3000/event-note/${id}`, {
+      await apiFetch(`/event-note/${id}`, {
         method: "DELETE",
         headers: authHeaders,
       });
@@ -514,7 +515,7 @@ function EventNotesPanel({
 
   const handleUpdate = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/event-note/${id}`, {
+      const res = await apiFetch(`/event-note/${id}`, {
         method: "PATCH",
         headers: authHeaders,
         body: JSON.stringify({ content: editContent.trim() }),
@@ -705,7 +706,7 @@ const EventDetailContent = () => {
     }
     const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/event/${id}`);
+        const res = await apiFetch(`/event/${id}`);
         if (!res.ok) throw new Error("Failed to fetch event details");
         setEvent(await res.json());
       } catch (err) {
@@ -769,16 +770,12 @@ const EventDetailContent = () => {
     if (token) headers.Authorization = `Bearer ${token}`;
     const payload = { eventId: event.id, email: normalizedEmail };
     try {
-      const endpoints = [
-        "http://localhost:3000/invite",
-        "http://localhost:3000/invitation",
-      ];
+      const paths = ["/invite", "/invitation"];
       let success = false;
       let lastError = "Failed to send invitation.";
-      for (const endpoint of endpoints) {
-        const res = await fetch(endpoint, {
+      for (const path of paths) {
+        const res = await apiFetch(path, {
           method: "POST",
-          headers,
           body: JSON.stringify(payload),
         });
         if (res.ok) {
