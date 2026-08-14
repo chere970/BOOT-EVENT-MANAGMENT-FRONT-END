@@ -80,7 +80,7 @@ const normalizeTasks = (payload: unknown): TaskItem[] => {
       : [];
 
   return records
-    .map((item) => {
+    .map((item: unknown) => {
       if (!item || typeof item !== "object") {
         return null;
       }
@@ -119,7 +119,7 @@ const normalizeTasks = (payload: unknown): TaskItem[] => {
             : null,
       } satisfies TaskItem;
     })
-    .filter((task): task is TaskItem => !!task);
+    .filter((task: TaskItem | null): task is TaskItem => !!task);
 };
 
 const normalizeEvents = (payload: unknown): EventItem[] => {
@@ -132,7 +132,7 @@ const normalizeEvents = (payload: unknown): EventItem[] => {
       : [];
 
   return records
-    .map((item) => {
+    .map((item: unknown) => {
       if (!item || typeof item !== "object") {
         return null;
       }
@@ -147,7 +147,7 @@ const normalizeEvents = (payload: unknown): EventItem[] => {
         createdById: record.createdById ?? record.created_by_id,
       } satisfies EventItem;
     })
-    .filter((event): event is EventItem => !!event);
+    .filter((event: EventItem | null): event is EventItem => !!event);
 };
 
 const formatDateTime = (value?: string | null) => {
