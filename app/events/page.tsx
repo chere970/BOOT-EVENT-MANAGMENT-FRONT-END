@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { RiGroupLine } from "react-icons/ri";
+import { RiGroupLine, RiMapPinLine, RiCalendarLine } from "react-icons/ri";
 import { FaStar } from "react-icons/fa";
 
 interface Event {
@@ -9,6 +9,9 @@ interface Event {
   title: string;
   description?: string;
   startDate: string;
+  // atendeeCapacity?: number | string;
+  attendeeCapacity?: number | string;
+  // attendee_capacity?: number | string;
   endDate?: string;
   location?: string;
   imageUrl?: string;
@@ -16,6 +19,14 @@ interface Event {
   createdAt: string;
   updatedAt: string;
   registrations?: any[];
+  registrationCount?: number | string;
+  registrationsCount?: number | string;
+  registeredCount?: number | string;
+  attendeeCount?: number | string;
+  totalRegistrations?: number | string;
+  _count?: {
+    registrations?: number | string;
+  };
 }
 
 type EventFilter = "All" | "Today" | "Last Year" | "Upcoming Events";
@@ -29,12 +40,95 @@ const EventsPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch("http://localhost:3000/event");
+        const token =
+          localStorage.getItem("token") ||
+          localStorage.getItem("access_token") ||
+          localStorage.getItem("authToken") ||
+          "";
+
+        const eventHeaders: HeadersInit = token
+          ? { Authorization: `Bearer ${token}` }
+          : {};
+
+        const response = await fetch("http://localhost:3000/event", {
+          headers: eventHeaders,
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch events");
         }
         const data = await response.json();
-        setEvents(data);
+
+        const eventsArray: Event[] = Array.isArray(data) ? data : [];
+
+        const eventsWithCounts = await Promise.all(
+          eventsArray.map(async (event) => {
+            const hasRegistrationsArray = Array.isArray(event.registrations);
+            const hasScalarCount =
+              event.registrationCount !== undefined ||
+              event.registrationsCount !== undefined ||
+              event.registeredCount !== undefined ||
+              event.attendeeCount !== undefined ||
+              event.totalRegistrations !== undefined ||
+              event._count?.registrations !== undefined;
+
+            if (hasRegistrationsArray || hasScalarCount || !event.id) {
+              return event;
+            }
+
+            try {
+              const headers: HeadersInit = token
+                ? { Authorization: `Bearer ${token}` }
+                : {};
+
+              const registrationEndpoints = [
+                `http://localhost:3000/registration/${event.id}`,
+                `http://localhost:3000/registrations/${event.id}`,
+              ];
+
+              for (const endpoint of registrationEndpoints) {
+                const registrationResponse = await fetch(endpoint, {
+                  headers,
+                });
+
+                if (!registrationResponse.ok) {
+                  continue;
+                }
+
+                const registrationData = await registrationResponse.json();
+                const registrationList = Array.isArray(registrationData)
+                  ? registrationData
+                  : Array.isArray(registrationData?.data)
+                    ? registrationData.data
+                    : [];
+
+                if (registrationList.length > 0) {
+                  return {
+                    ...event,
+                    registrations: registrationList,
+                    registrationCount: registrationList.length,
+                  };
+                }
+
+                const rawCount = registrationData?.count;
+                const parsedCount =
+                  typeof rawCount === "number" ? rawCount : Number(rawCount);
+
+                if (Number.isFinite(parsedCount) && parsedCount >= 0) {
+                  return {
+                    ...event,
+                    registrationCount: parsedCount,
+                  };
+                }
+              }
+
+              return event;
+            } catch {
+              return event;
+            }
+          }),
+        );
+
+        setEvents(eventsWithCounts);
       } catch (err) {
         console.error("Error fetching events:", err);
         setError("Could not load events. Please try again later.");
@@ -77,6 +171,84 @@ const EventsPage = () => {
 
     const parsed = new Date(dateString);
     return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const formatEventDateRange = (
+    startDateString?: string,
+    endDateString?: string,
+  ) => {
+    const start = parseEventDate(startDateString);
+    const end = parseEventDate(endDateString);
+
+    if (!start) {
+      return "Time TBD";
+    }
+
+    const startLabel = start.toLocaleString("en-US", {
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    if (!end) {
+      return startLabel;
+    }
+
+    const endLabel = end.toLocaleString("en-US", {
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return `${startLabel} - ${endLabel}`;
+  };
+
+  const parseAttendeeCapacity = (event: Event) => {
+    // const rawValue = event.atendeeCapacity;
+    const rawValue = event.attendeeCapacity;
+    // event.attendee_capacity;
+
+    if (rawValue === undefined || rawValue === null || rawValue === "") {
+      return undefined;
+    }
+
+    const parsedValue =
+      typeof rawValue === "number" ? rawValue : Number(rawValue);
+
+    if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+      return undefined;
+    }
+
+    return parsedValue;
+  };
+
+  const parseRegistrationsCount = (event: Event) => {
+    if (Array.isArray(event.registrations)) {
+      return event.registrations.length;
+    }
+
+    const rawCount =
+      event.registrationCount ??
+      event.registrationsCount ??
+      event.registeredCount ??
+      event.attendeeCount ??
+      event.totalRegistrations ??
+      event._count?.registrations;
+
+    if (rawCount === undefined || rawCount === null || rawCount === "") {
+      return 0;
+    }
+
+    const parsedCount =
+      typeof rawCount === "number" ? rawCount : Number(rawCount);
+
+    if (!Number.isFinite(parsedCount) || parsedCount < 0) {
+      return 0;
+    }
+
+    return parsedCount;
   };
 
   const filters: EventFilter[] = [
@@ -141,6 +313,21 @@ const EventsPage = () => {
 
   return (
     <div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        {/* <div>
+          <h2 className="text-2xl font-bold text-gray-900">Events</h2>
+          <p className="text-sm text-gray-500">
+            Manage and create upcoming events.
+          </p>
+        </div> */}
+        {/* <Link
+          href="/create-event"
+          className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          Create Event
+        </Link> */}
+      </div>
+
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-8">
         {filters.map((f) => (
@@ -161,10 +348,13 @@ const EventsPage = () => {
       {/* Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEvents.map((event) => {
-          const { month, day, time } = formatDateLabel(event.startDate);
-          const registrationsCount =
-            event.registrations?.length ||
-            Math.floor(Math.random() * 5000) + 100;
+          const { month, day } = formatDateLabel(event.startDate);
+          const dateTimeRange = formatEventDateRange(
+            event.startDate,
+            event.endDate,
+          );
+          const registrationsCount = parseRegistrationsCount(event);
+          const attendeeCapacity = parseAttendeeCapacity(event);
           const coverImage = event.imageUrl?.trim();
           // "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80";
 
@@ -208,14 +398,28 @@ const EventsPage = () => {
                 </div>
 
                 {/* Details Block */}
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1 truncate">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1.5 truncate">
                     {event.title}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-2 truncate">
-                    {event.location || "Online / Unknown Location"}
-                  </p>
-                  <p className="text-sm text-gray-500 mb-4">{time}</p>
+
+                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <RiMapPinLine
+                      className="shrink-0 mr-1.5 text-gray-400"
+                      size={15}
+                    />
+                    <span className="truncate">
+                      {event.location || "Online / Unknown Location"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-start text-sm text-gray-500 mb-4">
+                    <RiCalendarLine
+                      className="shrink-0 mt-0.5 mr-1.5 text-gray-400"
+                      size={15}
+                    />
+                    <span className="leading-snug">{dateTimeRange}</span>
+                  </div>
 
                   {/* Footer Row */}
                   <div className="flex items-center text-sm text-gray-500">
@@ -223,7 +427,10 @@ const EventsPage = () => {
                       <RiGroupLine size={16} />
                       <span className="font-medium">
                         {registrationsCount.toLocaleString()}
-                        {registrationsCount > 4000 ? "+" : ""}
+                        {typeof attendeeCapacity === "number" &&
+                        attendeeCapacity > 0
+                          ? ` / ${attendeeCapacity.toLocaleString()}`
+                          : ""}
                       </span>
                     </div>
                     <span className="mx-2 text-gray-300">•</span>

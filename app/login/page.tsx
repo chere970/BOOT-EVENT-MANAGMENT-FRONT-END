@@ -40,7 +40,10 @@ export default function Login() {
         throw new Error(data.error || "Login faild");
       }
 
-      localStorage.setItem("token", data.token);
+      // Backend returns access_token but fallback handles both keys
+      const receivedToken = data.access_token || data.token;
+      localStorage.setItem("token", receivedToken);
+      localStorage.setItem("access_token", receivedToken);
       localStorage.setItem("user", JSON.stringify(data.user));
       router.push(safeRedirectPath);
     } catch (err: any) {

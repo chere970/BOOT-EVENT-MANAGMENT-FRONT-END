@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   RiDashboardLine,
   RiCalendarEventLine,
+  RiAddCircleLine,
   RiFileList3Line,
   RiGroupLine,
   RiMessage3Line,
@@ -12,8 +13,39 @@ import {
   RiMenuLine,
 } from "react-icons/ri";
 
+interface StoredUser {
+  name?: string;
+  fullName?: string;
+  username?: string;
+  role?: string;
+  userRole?: string;
+}
+
 const Sidebar = () => {
   const pathname = usePathname();
+  const [user, setUser] = useState<StoredUser | null>(null);
+
+  useEffect(() => {
+    const rawUser = localStorage.getItem("user");
+    if (!rawUser) {
+      return;
+    }
+
+    try {
+      setUser(JSON.parse(rawUser));
+    } catch (parseError) {
+      console.error("Failed to parse user from localStorage:", parseError);
+    }
+  }, []);
+
+  const displayName = user?.fullName || user?.name || user?.username || "User";
+  const activeRole = (user?.role || user?.userRole || "").toUpperCase();
+  const isMember = activeRole === "MEMBER";
+  const isAdmin = activeRole === "ADMIN";
+  const isVolunteer = activeRole === "VOLUNTEER";
+  const roleLabel = activeRole || "Event Manager";
+  const panelLabel = isMember ? "Member Panel" : "Admin Panel";
+  const dashboardHref = isMember ? "/member" : "/dashbord";
 
   return (
     <aside className="w-64 border-r border-gray-200 h-full flex flex-col bg-white">
@@ -24,10 +56,8 @@ const Sidebar = () => {
             <RiMenuLine size={20} />
           </div>
           <div>
-            <h1 className="font-bold text-lg leading-tight text-gray-900">
-              Eventra
-            </h1>
-            <p className="text-xs text-gray-500 font-medium">Admin Panel</p>
+            <h1 className="font-bold text-lg leading-tight text-gray-900"></h1>
+            <p className="text-xs text-gray-500 font-medium">{panelLabel}</p>
           </div>
         </div>
         <button className="text-gray-400 hover:text-gray-600">
@@ -40,15 +70,15 @@ const Sidebar = () => {
         <div className="px-4 py-3 border border-gray-200 rounded-xl flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors">
           <div className="flex items-center space-x-3">
             <img
-              src="https://randomuser.me/api/portraits/women/44.jpg"
+              src="https://randomuser.me/api/portraits/lego/1.jpg"
               alt="User"
               className="w-10 h-10 rounded-full"
             />
             <div>
               <h2 className="text-sm font-semibold text-gray-900">
-                Ava Sinclair
+                {displayName}
               </h2>
-              <p className="text-xs text-gray-500">Event Manager</p>
+              <p className="text-xs text-gray-500">{roleLabel}</p>
             </div>
           </div>
           <div className="text-gray-400">
@@ -76,8 +106,8 @@ const Sidebar = () => {
         </p>
         <nav className="space-y-1">
           <Link
-            href="#"
-            className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+            href={dashboardHref}
+            className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${pathname === dashboardHref ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
           >
             <RiDashboardLine size={20} />
             <span className="text-sm font-medium">Dashboard</span>
@@ -98,34 +128,70 @@ const Sidebar = () => {
             )}
           </Link>
 
+          {isAdmin && (
+            <Link
+              href="/create-event"
+              className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname === "/create-event" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
+            >
+              <RiAddCircleLine size={20} />
+              <span className="text-sm">Create Event</span>
+            </Link>
+          )}
+
           <Link
-            href="#"
+            href="/events"
             className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname.startsWith("/event-detail") ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
           >
             <RiFileList3Line size={20} />
-            <span className="text-sm">Event Details</span>
-          </Link>
-
-          <Link
-            href="#"
-            className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            <RiGroupLine size={20} />
-            <span className="text-sm font-medium">Attendee Insights</span>
-          </Link>
-
-          <Link
-            href="#"
-            className="flex items-center justify-between px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-center space-x-3">
-              <RiMessage3Line size={20} />
-              <span className="text-sm font-medium">Messages</span>
-            </div>
-            <span className="text-[10px] font-bold bg-red-500 text-white w-5 h-5 flex items-center justify-center rounded-full">
-              4
+            <span className="text-sm">
+              {isMember ? "My Event Activity" : "Event Details"}
             </span>
           </Link>
+
+          {isVolunteer && (
+            <Link
+              href="/organizer/tasks"
+              className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname.startsWith("/organizer/tasks") ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
+            >
+              <RiFileList3Line size={20} />
+              <span className="text-sm">Volunteer Tasks</span>
+            </Link>
+          )}
+
+          {!isMember && (
+            <Link
+              href="#"
+              className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              <RiGroupLine size={20} />
+              <span className="text-sm font-medium">Attendee Insights</span>
+            </Link>
+          )}
+
+          {!isMember && (
+            <Link
+              href="#"
+              className="flex items-center justify-between px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <RiMessage3Line size={20} />
+                <span className="text-sm font-medium">Messages</span>
+              </div>
+              <span className="text-[10px] font-bold bg-red-500 text-white w-5 h-5 flex items-center justify-center rounded-full">
+                4
+              </span>
+            </Link>
+          )}
+
+          {isMember && (
+            <Link
+              href="/events"
+              className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname === "/events" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
+            >
+              <RiGroupLine size={20} />
+              <span className="text-sm">Joined & Upcoming</span>
+            </Link>
+          )}
 
           <Link
             href="#"
