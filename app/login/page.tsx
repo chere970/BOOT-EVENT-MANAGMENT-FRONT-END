@@ -6,8 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
-import Select from "@/components/selecet";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   return (
@@ -20,9 +20,9 @@ export default function LoginPage() {
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,7 +30,7 @@ function LoginContent() {
   const safeRedirectPath =
     nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")
       ? nextPath
-      : "./events";
+      : "/events";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,14 +45,11 @@ function LoginContent() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Login faild");
+        throw new Error(data.error || data.message || "Login failed");
       }
 
-      // Backend returns access_token but fallback handles both keys
       const receivedToken = data.access_token || data.token;
-      localStorage.setItem("token", receivedToken);
-      localStorage.setItem("access_token", receivedToken);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      login(receivedToken, data.user);
       router.push(safeRedirectPath);
     } catch (err: any) {
       setError(err.message);
@@ -80,7 +77,7 @@ function LoginContent() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Phone number"
-            type="string"
+            type="text"
             name="phoneNumber"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -96,24 +93,6 @@ function LoginContent() {
             required
             autoComplete="current-password"
           />
-          <div>
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Role
-            </label>
-            <Select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              options={[
-                { value: "MEMBER", label: "Member" },
-                { value: "ADMIN", label: "Admin" },
-                { value: "VOLUNTEER", label: "Volunteer" },
-              ]}
-            />
-          </div>
           <Button type="submit" isLoading={loading}>
             Login
           </Button>

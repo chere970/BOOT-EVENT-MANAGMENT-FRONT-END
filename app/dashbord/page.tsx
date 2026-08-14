@@ -64,8 +64,11 @@ const DATE_RANGE_OPTIONS: Array<{ value: TimeRange; label: string }> = [
   { value: "all", label: "All time" },
 ];
 
+import { useAuth } from "@/context/AuthContext";
+
 export default function DashboardPage() {
   const router = useRouter();
+  const { user, token: contextToken, isLoading: authLoading } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
@@ -76,31 +79,21 @@ export default function DashboardPage() {
 
   const loadDashboardData = useCallback(
     async (showBlockingLoader: boolean) => {
-      const token =
-        localStorage.getItem("token") ||
-        localStorage.getItem("access_token") ||
-        localStorage.getItem("authToken") ||
-        "";
+      if (authLoading) return;
 
-      if (!token) {
+      const token = contextToken || "";
+
+      if (!token || !user) {
         router.push("/login");
         return;
       }
 
-      const rawUser = localStorage.getItem("user");
-      if (rawUser) {
-        try {
-          const parsedUser = JSON.parse(rawUser);
-          const activeRole = (parsedUser?.role || parsedUser?.userRole || "")
-            .toString()
-            .toUpperCase();
-          if (activeRole === "MEMBER") {
-            router.push("/member");
-            return;
-          }
-        } catch (parseError) {
-          console.error("Failed to parse user from localStorage:", parseError);
-        }
+      const activeRole = (user?.role || user?.userRole || "")
+        .toString()
+        .toUpperCase();
+      if (activeRole === "MEMBER") {
+        router.push("/member");
+        return;
       }
 
       if (showBlockingLoader) {
@@ -152,7 +145,7 @@ export default function DashboardPage() {
         setRefreshing(false);
       }
     },
-    [router],
+    [router, authLoading, contextToken, user],
   );
 
   useEffect(() => {

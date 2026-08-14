@@ -21,22 +21,11 @@ interface StoredUser {
   userRole?: string;
 }
 
+import { useAuth } from "@/context/AuthContext";
+
 const Sidebar = () => {
   const pathname = usePathname();
-  const [user, setUser] = useState<StoredUser | null>(null);
-
-  useEffect(() => {
-    const rawUser = localStorage.getItem("user");
-    if (!rawUser) {
-      return;
-    }
-
-    try {
-      setUser(JSON.parse(rawUser));
-    } catch (parseError) {
-      console.error("Failed to parse user from localStorage:", parseError);
-    }
-  }, []);
+  const { user, logout } = useAuth();
 
   const displayName = user?.fullName || user?.name || user?.username || "User";
   const activeRole = (user?.role || user?.userRole || "").toUpperCase();

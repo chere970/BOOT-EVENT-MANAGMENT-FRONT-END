@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AdminLayout from "@/app/components/AdminLayout";
 import { API_BASE_URL } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 type TaskStatus = "PENDING" | "DONE" | "CLOSED";
 
@@ -164,7 +165,8 @@ const formatDateTime = (value?: string | null) => {
 
 export default function VolunteerTasksPage() {
   const router = useRouter();
-  const [authToken, setAuthToken] = useState("");
+  const { user: contextUser, token: contextToken, isLoading: authLoading } = useAuth();
+  const authToken = contextToken || "";
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -178,32 +180,20 @@ export default function VolunteerTasksPage() {
   const [eventFilter, setEventFilter] = useState("ALL");
 
   useEffect(() => {
-    const token =
-      localStorage.getItem("token") ||
-      localStorage.getItem("access_token") ||
-      localStorage.getItem("authToken") ||
-      "";
-    const rawUser = localStorage.getItem("user");
+    if (authLoading) return;
 
-    if (!token || !rawUser) {
+    if (!contextToken || !contextUser) {
       router.push(`/login?next=${encodeURIComponent("/organizer/tasks")}`);
       return;
     }
 
-    try {
-      const user = JSON.parse(rawUser) as CurrentUser;
-      const role = getRole(user);
-      if (role !== "VOLUNTEER") {
-        router.push(role === "MEMBER" ? "/member" : "/dashbord");
-        return;
-      }
-      setCurrentUser(user);
-      setAuthToken(token);
-    } catch (parseError) {
-      console.error("Failed to parse user from localStorage:", parseError);
-      router.push("/login");
+    const role = getRole(contextUser);
+    if (role !== "VOLUNTEER") {
+      router.push(role === "MEMBER" ? "/member" : "/dashbord");
+      return;
     }
-  }, [router]);
+    setCurrentUser(contextUser);
+  }, [authLoading, contextToken, contextUser, router]);
 
   useEffect(() => {
     if (!authToken) {

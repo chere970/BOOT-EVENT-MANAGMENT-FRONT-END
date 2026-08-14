@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import AdminLayout from "@/app/components/AdminLayout";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 interface Event {
   id: string;
@@ -26,9 +27,9 @@ export default function OrganizerScanPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [useScanner, setUseScanner] = useState(false);
 
+  const { user, token: contextToken, isLoading: authLoading } = useAuth();
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [authToken, setAuthToken] = useState("");
+  const authToken = contextToken || "";
 
   const [result, setResult] = useState<{
     type: "success" | "error";
@@ -37,38 +38,24 @@ export default function OrganizerScanPage() {
   } | null>(null);
 
   useEffect(() => {
-    const token =
-      localStorage.getItem("token") ||
-      localStorage.getItem("access_token") ||
-      "";
-    const rawUser = localStorage.getItem("user");
+    if (authLoading) return;
 
-    if (!token || !rawUser) {
+    if (!contextToken || !user) {
       router.push(`/login?next=${encodeURIComponent("/organizer/scan")}`);
       return;
     }
 
-    try {
-      const parsedUser: CurrentUser = JSON.parse(rawUser);
-      const activeRole = (parsedUser.role || parsedUser.userRole || "")
-        .toString()
-        .toUpperCase();
+    const activeRole = (user.role || user.userRole || "")
+      .toString()
+      .toUpperCase();
 
-      if (activeRole !== "VOLUNTEER") {
-        router.push(activeRole === "MEMBER" ? "/member" : "/dashbord");
-        return;
-      }
-
-      setAuthToken(token);
-      setIsAuthorized(true);
-    } catch (parseError) {
-      console.error("Failed to parse user from localStorage:", parseError);
-      router.push("/login");
+    if (activeRole !== "VOLUNTEER") {
+      router.push(activeRole === "MEMBER" ? "/member" : "/dashbord");
       return;
-    } finally {
-      setAuthLoading(false);
     }
-  }, [router]);
+
+    setIsAuthorized(true);
+  }, [authLoading, contextToken, user, router]);
 
   // Load all events on mount
   useEffect(() => {

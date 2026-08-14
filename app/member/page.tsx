@@ -20,21 +20,14 @@ interface StoredUser {
   userRole?: string;
 }
 
+import { useAuth } from "@/context/AuthContext";
+
 export default function MemberPage() {
-  const [user, setUser] = useState<StoredUser | null>(null);
+  const { user } = useAuth();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const rawUser = localStorage.getItem("user");
-    if (rawUser) {
-      try {
-        setUser(JSON.parse(rawUser));
-      } catch (parseError) {
-        console.error("Failed to parse user from localStorage:", parseError);
-      }
-    }
-
     const fetchEvents = async () => {
       try {
         const response = await apiFetch("/event");

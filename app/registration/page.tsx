@@ -7,6 +7,7 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 import Select from "@/components/selecet";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   return (
@@ -19,6 +20,7 @@ export default function RegisterPage() {
 function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
   const [phone, setPhone] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
@@ -52,9 +54,10 @@ function RegisterContent() {
         );
       }
 
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
+      const receivedToken = data.access_token || data.token;
+      if (receivedToken && data.user) {
+        login(receivedToken, data.user);
+      }
       router.push(safeRedirectPath);
     } catch (err: any) {
       setError(err.message);
