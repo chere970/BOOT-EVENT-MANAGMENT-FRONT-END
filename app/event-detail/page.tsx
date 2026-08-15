@@ -5,7 +5,9 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { RiMapPinLine, RiCalendarLine } from "react-icons/ri";
 import AdminLayout from "../components/AdminLayout";
+import EventLocationMap from "../components/EventLocationMap";
 import { apiFetch } from "@/lib/api";
+import { getGoogleMapsSearchUrl } from "@/lib/maps";
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
@@ -16,6 +18,8 @@ interface EventDetail {
   startDate: string;
   endDate?: string;
   location?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   imageUrl?: string;
   createdById: string;
   createdAt: string;
@@ -891,16 +895,37 @@ const EventDetailContent = () => {
               <div className="bg-rose-50 p-2.5 rounded-xl border border-rose-100 shadow-sm mr-4">
                 <RiMapPinLine className="text-rose-500" size={22} />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.16em] mb-0.5">
                   Location
                 </p>
                 <p className="font-semibold text-slate-900 md:truncate md:max-w-xs">
                   {event.location || "Online / Unknown Location"}
                 </p>
+                {getGoogleMapsSearchUrl(event.location, event) && (
+                  <a
+                    href={getGoogleMapsSearchUrl(event.location, event) ?? undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700"
+                  >
+                    Open in Google Maps
+                  </a>
+                )}
               </div>
             </div>
           </div>
+
+          {(event.location || (event.latitude && event.longitude)) && (
+            <div className="mb-10">
+              <EventLocationMap
+                location={event.location}
+                latitude={event.latitude}
+                longitude={event.longitude}
+                title={`Map for ${event.title}`}
+              />
+            </div>
+          )}
 
           {/* Event Description */}
           <div className="mb-12 rounded-3xl border border-white bg-white/85 p-6 md:p-8 shadow-sm backdrop-blur-md">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { RiGroupLine, RiMapPinLine, RiCalendarLine } from "react-icons/ri";
 import { FaStar } from "react-icons/fa";
 import { apiFetch } from "@/lib/api";
+import { getGoogleMapsSearchUrl } from "@/lib/maps";
 
 interface Event {
   id: string;
@@ -15,6 +16,8 @@ interface Event {
   // attendee_capacity?: number | string;
   endDate?: string;
   location?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   imageUrl?: string;
   createdById: string;
   createdAt: string;
@@ -347,6 +350,7 @@ const EventsPage = () => {
           //   "Ceremonies & Celebrations",
           // ];
           const mockCategory = event.title;
+          const mapsUrl = getGoogleMapsSearchUrl(event.location, event);
 
           return (
             <Link
@@ -391,9 +395,31 @@ const EventsPage = () => {
                       className="shrink-0 mr-1.5 text-gray-400"
                       size={15}
                     />
-                    <span className="truncate">
-                      {event.location || "Online / Unknown Location"}
-                    </span>
+                    {mapsUrl ? (
+                      <span
+                        role="link"
+                        tabIndex={0}
+                        onClick={(clickEvent) => {
+                          clickEvent.preventDefault();
+                          clickEvent.stopPropagation();
+                          window.open(mapsUrl, "_blank", "noopener,noreferrer");
+                        }}
+                        onKeyDown={(keyEvent) => {
+                          if (keyEvent.key === "Enter" || keyEvent.key === " ") {
+                            keyEvent.preventDefault();
+                            keyEvent.stopPropagation();
+                            window.open(mapsUrl, "_blank", "noopener,noreferrer");
+                          }
+                        }}
+                        className="truncate cursor-pointer hover:text-blue-600 hover:underline"
+                      >
+                        {event.location || "View on map"}
+                      </span>
+                    ) : (
+                      <span className="truncate">
+                        {event.location || "Online / Unknown Location"}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-start text-sm text-gray-500 mb-4">
