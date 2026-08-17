@@ -209,7 +209,7 @@ export default function PrayerWallPage() {
   };
 
   const getPrayCount = (req: PrayerRequest): number => {
-    return req.prayCount ?? req.praysCount ?? req.count ?? req._count?.prays ?? 0;
+    return req.prayerCount ?? req.prayCount ?? req.praysCount ?? req.count ?? req._count?.prays ?? 0;
   };
 
   const canDelete = (req: PrayerRequest): boolean => {

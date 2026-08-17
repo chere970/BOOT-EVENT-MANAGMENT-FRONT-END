@@ -17,8 +17,8 @@ const PRESET_AMOUNTS = [10, 25, 50, 100, 250, 500];
 export default function GivePage() {
   const { user } = useAuth();
 
-  const [amount, setAmount] = useState<string>("50");
-  const [currency, setCurrency] = useState<string>("USD");
+  const [amount, setAmount] = useState<string>("100");
+  const [currency, setCurrency] = useState<string>("ETB");
   const [frequency, setFrequency] = useState<string>("ONE_TIME");
   const [campaign, setCampaign] = useState<string>("General Fund");
 
@@ -204,15 +204,15 @@ export default function GivePage() {
                         : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-purple-50 hover:text-purple-700"
                     }`}
                   >
-                    ${val}
+                    {currency === "ETB" ? "Br " : "$"}{val}
                   </button>
                 ))}
               </div>
 
               <div className="flex gap-3 pt-2">
                 <div className="relative flex-1">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">
-                    $
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-xs">
+                    {currency}
                   </span>
                   <input
                     type="number"
@@ -221,7 +221,7 @@ export default function GivePage() {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="Custom amount"
-                    className="w-full pl-8 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-base font-bold text-gray-900 focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-base font-bold text-gray-900 focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                     required
                   />
                 </div>
@@ -230,6 +230,7 @@ export default function GivePage() {
                   onChange={(e) => setCurrency(e.target.value)}
                   className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-purple-600"
                 >
+                  <option value="ETB">ETB (Birr)</option>
                   <option value="USD">USD ($)</option>
                   <option value="EUR">EUR (€)</option>
                   <option value="GBP">GBP (£)</option>

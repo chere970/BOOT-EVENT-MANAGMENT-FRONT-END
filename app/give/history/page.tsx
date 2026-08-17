@@ -161,7 +161,7 @@ export default function DonationHistoryPage() {
                   })
                 : "Unknown date";
 
-              const currSymbol = item.currency === "EUR" ? "€" : item.currency === "GBP" ? "£" : "$";
+              const currSymbol = item.currency === "EUR" ? "€ font-sans" : item.currency === "GBP" ? "£" : item.currency === "ETB" ? "Br " : "$";
 
               return (
                 <div
