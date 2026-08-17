@@ -11,6 +11,9 @@ import {
   RiMessage3Line,
   RiSettings4Line,
   RiMenuLine,
+  RiHeartLine,
+  RiCommunityLine,
+  RiHandCoinLine,
 } from "react-icons/ri";
 
 interface StoredUser {
@@ -191,6 +194,30 @@ const Sidebar = () => {
           >
             <RiFileList3Line size={20} />
             <span className="text-sm">My Tickets</span>
+          </Link>
+
+          <Link
+            href="/prayer"
+            className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname.startsWith("/prayer") ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
+          >
+            <RiHeartLine size={20} />
+            <span className="text-sm">Prayer Wall</span>
+          </Link>
+
+          <Link
+            href="/ministries"
+            className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname.startsWith("/ministries") ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
+          >
+            <RiCommunityLine size={20} />
+            <span className="text-sm">Ministries</span>
+          </Link>
+
+          <Link
+            href="/give"
+            className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${pathname.startsWith("/give") ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"}`}
+          >
+            <RiHandCoinLine size={20} />
+            <span className="text-sm">Giving</span>
           </Link>
 
           <Link
