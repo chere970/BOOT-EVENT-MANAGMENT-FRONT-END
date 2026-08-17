@@ -18,7 +18,7 @@ export function getGoogleMapsSearchUrl(
   location?: string | null,
   coordinates?: EventCoordinates,
 ): string | null {
-  if (hasEventCoordinates(coordinates ?? {})) {
+  if (coordinates && hasEventCoordinates(coordinates)) {
     return `https://www.google.com/maps/search/?api=1&query=${coordinates.latitude},${coordinates.longitude}`;
   }
 
@@ -34,7 +34,7 @@ export function getGoogleMapsEmbedUrl(
   location?: string | null,
   coordinates?: EventCoordinates,
 ): string | null {
-  if (hasEventCoordinates(coordinates ?? {})) {
+  if (coordinates && hasEventCoordinates(coordinates)) {
     return `https://maps.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}&z=15&output=embed`;
   }
 
